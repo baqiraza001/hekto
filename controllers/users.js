@@ -130,19 +130,20 @@ router.post("/edit", async (req, res) => {
     if (!req.body.id) throw new Error("User id is required");
     if (!mongoose.isValidObjectId(req.body.id))
       throw new Error("User id is invalid");
-    if (req.user._id.toString() !== req.body.id) // to string is used to convert req.user._id to string because this returns new ObjectId("6439f4ca31d7babed61963e0") that is object user id and we need only string to compare it.
-      throw new Error("Invalid request s");
+    // if (req.user._id.toString() !== req.body.id) // to string is used to convert req.user._id to string because this returns new ObjectId("6439f4ca31d7babed61963e0") that is object user id and we need only string to compare it.
+    //   throw new Error("Invalid request s");
 
     const user = await User.findById(req.body.id);
     if (!user) throw new Error("User does not exists");
 
     await User.findByIdAndUpdate(req.body.id, {
       name: req.body.name,
-      age: req.body.age,
-      salary: req.body.salary,
+      email: req.body.email,
+      phone_number: req.body.phone_number,
+      type: req.body.type
     });
 
-    res.json({ success: true });
+    res.json({ user: await User.findById(req.body.id) });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+
+
+:root {
+  --purple: #800080;
+  --off-purple: #9F63B5;
+  --pink: #FB2E86;
+  --red: #FB2448;
+  --blue: #2F1AC4;
+  --off-navy-blue: #3F509E;
+  --sky-blue: #F3F9FF;
+  --off-blue: #151875;
+  --pantone-purple: #E0D3F5;
+  --voilet: #7E33E0;
+  --white: #F1F1F1;
+  --josefin: "Josefin Sans";
+  --lato: "Lato";
+  --bgcolor: white;
+  --light-purple: #F2F0FF;
+  --soft-blue: #8A8FB9;
+  --heading-color: #1A0B5B;
+  --product-background: #F6F7FB;
+  --product-background-hover: #F7F7F7;
+  --dark-light: #1518754D;
+  --light-gray: #B7BACB;
+
+  --light-blue : #EEEFFB;
+  --light-blue2 : #F5F6F8;
+  --light-gray: #B7BACB;
+  --light-pink : #FFF6FB;
+  --bread-crumbs : #F6F5FF;
+}
+
+.josefin {
+  font-family: var(--josefin) !important;
+}
+
+body {
+  font-family: var(--josefin);
+  background-color: white;
+}
+
+.active {
+  color: var(--pink) !important;
+}
+
+.slick-dots li button:before {
+  font-size: 10px;
+  background-color: var(--pink);
+  height: 10px;
+  width: 10px;
+  text-indent: -9999px;
+  overflow:hidden;
+  transform: rotate(45deg);
+}

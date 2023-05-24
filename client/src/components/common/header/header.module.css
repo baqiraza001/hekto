@@ -1,0 +1,11 @@
+.topBarContainer{
+    font-family: var(--josefin) !important;
+}
+
+.btnMenu {
+    color: var(--white);
+    text-transform: capitalize;
+    font-family: var(--josefin);
+    font-size: 16px;
+    font-weight: 600;
+}

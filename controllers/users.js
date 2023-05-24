@@ -1,28 +1,56 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
-// const { createJWTToken } = require('../utils/util');
-// const { verifyUser } = require('../utils/middlewares');
+const { createJWTToken } = require('../utils/util');
 const { checkSchema, validationResult } = require('express-validator');
-const User = require("../models/User");
+const User = require("../models/User")
+const { verifyUser } = require("../milddlewares/auth")
+const { randomBytes } = require('crypto');
+const multer = require('multer');
+const fs = require('fs').promises;
 
 const router = express.Router();
-// router.use(['/profile-settings', '/add', '/edit', '/delete'], verifyUser);
+router.use(['/profile-update', '/add', '/edit', '/delete', "/profile"], verifyUser);
+
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    try{
+      await fs.mkdir(`content/${req.user._id}/`, { recursive: true});
+      cb(null, `content/${req.user._id}/`);
+    }catch(err)
+    {
+      cb(err, null);
+    }
+
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  }
+})
+
+const upload = multer({ storage });
 
 router.post("/login", async (req, res) => {
-
   try {
-    if (!req.body.email) throw new Error("Email is required");
-    if (!req.body.password) throw new Error("Password is required");
-    const user = await User.findOne({ email: req.body.email });
-    if (!user) throw new Error("Email or password is incorrect");
+    if (!req.body.email)
+      throw new Error("Email is required");
+    if (!req.body.password)
+      throw new Error("Password is required");
+    let user = await User.findOne({ email: req.body.email });
+    if (!user)
+      throw new Error("Email or password is incorrect");
+
     if (!(await bcrypt.compare(req.body.password, user.password)))
       throw new Error("Email or password is incorrect");
 
+    user = user.toObject()
+    delete user.password
+
     //promise ko hum await kr skty hn bcz isky andar async task perform hty hn
-    const token = await createJWTToken(user, 12);
-    res.json({ token, user });
+    const token = await createJWTToken(user, 5000);
+    res.json({ user, token });
   } catch (error) {
+
     if (error.name === "ValidationError") {
       let errors = {};
 
@@ -35,12 +63,125 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.get("/profile-settings", async (req, res) => {
+router.post("/forgot-password", async(req, res) => {
+  
+  try{
+    if(!req.body.email)
+      throw new Error("User email is required")
+    let user = await User.findOne({email: req.body.email})
+    if(!user)
+      throw new Error("Invalid Request")
+    const password_reset_code = user._id.toString() + randomBytes(Math.ceil(25/2)).toString('hex').slice(0, 25);
+    await User.findByIdAndUpdate(user._id, { password_reset_code });
+    const resetPasswordUrl = process.env.BASE_URL + "admin/reset-password/" + password_reset_code;
+
+    const data = {
+      Recipients: {
+        To: [user.email]
+      },
+      Content: {
+        Body: [{
+          ContentType: 'HTML',
+          Content: await ejs.renderFile('./emails/resetPassword.ejs', { name: user.name, resetPasswordUrl } ),
+          Charset: "utf8"
+        }],
+        subject: "Reset Password",
+        from: process.env.EMAIL_FROM
+      }
+    }
+    
+    // const response = await axios.post('https://api.elasticemail.com/v4/emails/transactional', data, {
+    //   headers: { 'X-ElasticEmail-ApiKey': process.env.EMAIL_API_KEY }
+    // })
+    
+    res.json({ success: true });
+
+
+  }catch(error){
+    res.status(400).json({ error: error.message });
+  }
+})
+
+router.post("/verify-reset-code", async (req, res) => {
 
   try {
-    res.json({
-      test: 'test'
+    if (!req.body.code) throw new Error("Code is required");
+    let user = await User.findOne({ password_reset_code: req.body.code });
+    if (!user) throw new Error("Invalid request");
+
+    user = user.toObject(); 
+    delete user.password;
+
+    res.json({ user });
+
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.post("/reset-password", async (req, res) => {
+
+  try {
+    if (!req.body.code) throw new Error("Code is required");
+    if (!req.body.newPassword) throw new Error("New password is required");
+    if (!req.body.confirmPassword) throw new Error("Confirm password is required");
+
+    if(req.body.newPassword.length < 6)
+      throw new Error("Password should have at least 6 characters");
+
+    if(req.body.newPassword !== req.body.confirmPassword)
+      throw new Error("Passwords are not same");
+
+    let user = await User.findOne({ password_reset_code: req.body.code });
+    if (!user) throw new Error("Invalid request");
+
+    await User.findByIdAndUpdate(user._id, {
+      password: await bcrypt.hash(req.body.newPassword, 10),
+      password_reset_code: ''
     })
+
+    res.json({ success: true });
+
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+
+router.post("/profile-update", upload.single('profile_picture'), async (req, res) => {
+
+  try {
+
+    const record = {
+      name: req.body.name,
+      phone_number: req.body.phone_number,
+    }
+    if(req.file && req.file.filename)
+    record.profile_picture = req.file.filename
+
+    if (!req.body.name) throw new Error("Name is required");
+
+    if(req.body.newPassword)
+    {
+      if (!req.body.currentPassword) throw new Error("Current password is required");
+
+      if (!(await bcrypt.compare(req.body.currentPassword, req.user.password)))
+      throw new Error("Current password is incorrect");
+
+      if (!req.body.newPassword.length < 6) throw new Error("New password should have atleast 6 characters");
+
+      if (req.body.newPassword !== req.body.confirmPassword) throw new Error("Passwords are not same");
+      record.password = await bcrypt.hash(req.body.newPassword, 10)
+    }
+
+    await User.findByIdAndUpdate(req.user._id, record)
+
+    let updatedUser = await User.findById(req.user._id);
+
+    updatedUser = updatedUser.toObject(); 
+    delete updatedUser.password;
+    res.json({ user: updatedUser });
+
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -86,15 +227,14 @@ const userSchema = checkSchema({
 
 
 router.post("/add", userSchema, async (req, res) => {
-
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const errors = validationResult(req).array({ onlyFirstError: true }).map(error => error.msg);
     return res.status(400).json({ errors });
   }
-
   try {
-
+    // if( isSuperAdmin(req.user) )
+    //   throw new Error("Invalid Request")
     let user = new User({
       name: req.body.name,
       email: req.body.email,
@@ -127,6 +267,9 @@ router.post("/add", userSchema, async (req, res) => {
 // router.post('/edit/:userId', async (req, res) => {
 router.post("/edit", async (req, res) => {
   try {
+    // if( isSuperAdmin(req.user) )
+    //   throw new Error("Invalid Request")
+    
     if (!req.body.id) throw new Error("User id is required");
     if (!mongoose.isValidObjectId(req.body.id))
       throw new Error("User id is invalid");
@@ -149,14 +292,33 @@ router.post("/edit", async (req, res) => {
   }
 });
 
+
+
+router.get("/profile", async(req, res) =>{
+  try{
+    let user = await User.findById(req.user._id)
+    user = user.toObject()
+    delete user.password
+    res.json({user});
+  }catch(err){
+     res.status(400).json({ error: err.message })
+  }
+})
+
+
+
 router.delete("/delete", async (req, res) => {
   try {
-    if (!req.body.id) throw new Error("User id is required");
+    // if( isSuperAdmin(req.user) )
+    //   throw new Error("Invalid Request")
+    
+    if (!req.body.id)
+      throw new Error("Invalid request");
     if (!mongoose.isValidObjectId(req.body.id))
-      throw new Error("User id is invalid");
+      throw new Error("Invalid request");
 
     const user = await User.findById(req.body.id);
-    if (!user) throw new Error("User does not exists");
+    if (!user) throw new Error("Invalid Request");
 
     await User.findByIdAndDelete(req.body.id);
 

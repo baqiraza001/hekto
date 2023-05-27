@@ -9,11 +9,11 @@ const productSchema = new mongoose.Schema({
     required: [true, "Name is required"],
     maxlength: 250
   },
-  description: {
+  shortDescription: {
     type: String,
     required: [true, "Product description is required"],
   },
-  product_picture: {
+  productPictures: {
     type: Array,
   },
   price: {
@@ -23,11 +23,38 @@ const productSchema = new mongoose.Schema({
   sale_price: {
     type: Number,
   },
-  brand: {
-    type: String,
+  discountPrice : {
+    type: Number
   },
   categoryId: {
     type: mongoose.Schema.Types.ObjectId,
+  },
+  brandId: {
+    type: mongoose.Schema.Types.ObjectId,
+  },
+  color: {
+    type: String,
+  },
+  isFeatured: {
+    type: Boolean
+  },
+  isTrending: {
+    type: Boolean
+  },
+  isTop: {
+    type: Boolean
+  },
+  averageRating: {
+    type: Number
+  },
+  tags: {
+    type: String,
+  },
+  longDescription: {
+    type: String
+  },
+  additionalInformation: {
+    type: String
   },
   active: {
     type: Number,

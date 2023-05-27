@@ -6,7 +6,10 @@ const initialState = {
     allRecordsLoaded: false,
     paginationArray: [],
     rowsPerPage: process.env.REACT_APP_RECORDS_PER_PAGE,
-    paginationCurrentPage: 0
+    paginationCurrentPage: 0,
+
+    allBrands: [],
+    allBrandsLoaded: false,
 }
 
 function brandReducer(state = initialState, action) {
@@ -116,6 +119,9 @@ function brandReducer(state = initialState, action) {
                 ...state,
                 paginationCurrentPage: action.payload
             }
+
+        case brandActionTypes.ALL_BRANDS_LOADED:
+            return { ...state, allBrands: [...action.payload, state.allBrands], allBrandsLoaded: true }
         default:
             return state;
     }

@@ -29,9 +29,9 @@ function AppRoutes() {
         <Routes>
             <Route path="/admin/" element={<Template />}>
                 <Route path="dashboard" element={<Dashboard />} />
+                <Route path="profile" element={<Profile />} />
                 <Route path="users/add" element={<AddUser />} />
                 <Route path="users" element={<Users />} />
-                <Route path="users/profile" element={<Profile />} />
                 <Route path="users/edit/:id/:rows/:page/" element={<EditUser />} />
                 <Route path="users/:recordsPerPage/:pageNumber/" element={<Users />} />
 

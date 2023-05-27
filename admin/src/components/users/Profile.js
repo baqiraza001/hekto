@@ -1,13 +1,11 @@
 import { Alert, Avatar, Button, CircularProgress, Grid } from '@mui/material'
 import { Box } from '@mui/system'
 import axios from 'axios'
-import { FORM_ERROR } from 'final-form'
 import { Field, Form } from 'react-final-form'
 import { connect, useDispatch } from 'react-redux'
-import SelectInput from '../library/form/SelectInput'
 import TextInput from '../library/form/TextInput'
 import EditIcon from '@mui/icons-material/Edit';
-import { authUpdate } from '../../store/actions/authActions'
+import { authUpdate, updateUser } from '../../store/actions/authActions'
 import FileInput from "../library/form/FileInput";
 import { showError, showSuccess } from '../../store/actions/alertActions'
 import { hideProgressBar, showProgressBar } from '../../store/actions/progressActions'
@@ -45,6 +43,8 @@ function Profile({ user, authUpdate }) {
       dispatch(showProgressBar())
       let result = await axios.postForm("/users/profile-update", data);
       if (result.data.user) {
+
+        dispatch( updateUser(result.data.user) );
         dispatch(showSuccess('Profile updated successfully'))
       }
       dispatch(hideProgressBar())
@@ -71,6 +71,7 @@ function Profile({ user, authUpdate }) {
           <Box display={"flex"} pt={5} flexDirection="column" alignItems={"center"} textAlign={"center"} justifyContent={"center"}>
             <Avatar
               sx={{ height: "100px", width: "100px" }}
+              src={ process.env.REACT_APP_URL + `content/${user._id}/${user.profile_picture}` }
             >
               {
                 user.name.slice(0, 1)

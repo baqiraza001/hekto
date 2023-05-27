@@ -7,19 +7,23 @@ import { Field, Form } from 'react-final-form'
 import { connect, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { showSuccess } from '../../store/actions/alertActions'
-import { loadCategories } from '../../store/actions/categoryActions'
+import { loadAllCategories } from '../../store/actions/categoryActions'
 import { productActionTypes } from '../../store/actions/productActions'
 import SelectInput from '../library/form/SelectInput'
+import CheckBoxInput from '../library/form/CheckBoxInput'
 import TextAreaInput from '../library/form/TextAreaInput'
 import TextInput from '../library/form/TextInput'
+import { loadAllBrands } from '../../store/actions/brandsActions.js'
+import FileInput from '../library/form/FileInput'
 
-function AddProduct({ categories }) {
+function AddProduct({ categories, brands }) {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
 
     useEffect(() => {
-        dispatch(loadCategories())
+        dispatch(loadAllCategories())
+        dispatch(loadAllBrands())
     }, [])
 
     const validate = (data) => {
@@ -39,7 +43,7 @@ function AddProduct({ categories }) {
 
     const handleAddProduct = async (data, form) => {
         try {
-            let result = await axios.post(
+            let result = await axios.postForm(
                 "http://localhost:5000/api/products/add",
                 data
             );
@@ -76,18 +80,38 @@ function AddProduct({ categories }) {
                 }) => (
                     <form onSubmit={handleSubmit} method="post" encType="multipart/form-data">
                         <Field component={TextInput} type='text' name="name" placeholder="Enter Product Name" label="Name" />
-                        <Field component={TextAreaInput} type='text' name="description" placeholder="Product Description" label="Description" />
+                        <Field component={TextAreaInput} type='text' name="shortDescription" placeholder="Product short description" label="Short description" />
                         <Field component={TextInput} type='number' name="price" placeholder="Product Price" label="Price" />
                         <Field component={TextInput} type='number' name="sale_price" placeholder="Sale Price" label="Sale Price" />
+                        <Field component={TextInput} type='number' name="discountPrice" placeholder="Discount price" label="Discount price" />
+                        <Field component={TextInput} type='color' name="color" placeholder="Color" label="Color" />
+                        <Field component={TextInput} type='text' name="tags" placeholder="Product Tags" label="Tags" />
+                        <Field component={TextAreaInput} type='text' name="longDescription" placeholder="Product long description" label="Long Description" />
+                        <Field component={TextAreaInput} type='text' name="additionalInformation" placeholder="Additional information" label="Additional information" />
+                        <Field component={FileInput} name="productPictures" inputProps={{ accept: "image/*", multiple: true }} />
+                        
                         <Field
                             component={SelectInput}
                             name="categoryId"
-                            label="Category"
+                            label="Select category"
+                            options={
+                                categories && categories.map(category => ({ label: category.name, value: category._id }))
+                            } />
+
+                        <Field
+                            component={SelectInput}
+                            name="brandId"
+                            label="Select brand"
                             options={
 
-                                categories && categories.map(category => ({ label: category.name, value: category._id }))
+                                brands && brands.map(brand => ({ label: brand.name, value: brand._id }))
 
                             } />
+
+                        <Field component={CheckBoxInput} name="isFeatured" label="Featured" />
+                        <Field component={CheckBoxInput} name="isTrending" label="Trending" />
+                        <Field component={CheckBoxInput} name="isTop" label="Top" />
+
 
                         {submitting ? (
                             <CircularProgress />
@@ -127,7 +151,8 @@ function AddProduct({ categories }) {
 
 const mapStateToProps = state => {
     return {
-        categories: state.categories.categories,
+        categories: state.categories.allCategories,
+        brands: state.brands.allBrands,
     }
 }
 

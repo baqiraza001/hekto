@@ -12,8 +12,6 @@ export const userActionTypes = {
   "UPDATE_PAGINATION_CURRENT_PAGE": "UPDATE_PAGINATION_CURRENT_PAGE",
 }
 
-
-
 //Load All stores
 export const loadUsers = (currentPage = 1, recordsPerPage = process.env.REACT_APP_RECORDS_PER_PAGE) => {
   return (dispatch, getState) => {

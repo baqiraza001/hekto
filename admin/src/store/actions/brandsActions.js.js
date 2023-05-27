@@ -9,7 +9,9 @@ export const brandActionTypes = {
   "BRANDS_LOADED": "BRANDS_LOADED",
   "RESET_BRAND": "RESET_BRAND",
   "UPDATE_ROWS_PERPAGE": "UPDATE_ROWS_PERPAGE",
+
   "UPDATE_PAGINATION_CURRENT_PAGE": "UPDATE_PAGINATION_CURRENT_PAGE",
+  "ALL_BRANDS_LOADED": "ALL_BRANDS_LOADED",
 }
 
 export const addBrand = (brand) => {
@@ -33,15 +35,14 @@ export const loadBrands = (currentPage = 1, recordsPerPage = process.env.REACT_A
     else
       skipRecords = (currentPage) * recordsPerPage;
 
-    axios.get('/brands', { params: { skip: skipRecords, limit: recordsPerPage} }).then(({ data }) => {
+    axios.get('/brands', { params: { skip: skipRecords, limit: recordsPerPage } }).then(({ data }) => {
       const state = getState();
       if (state.brands.brands.length === 0)
         dispatch(hideProgressBar());
 
-      const allRecordsLoaded = (state.brands.brands.length + data.brands.length ) === data.totalRecords;
+      const allRecordsLoaded = (state.brands.brands.length + data.brands.length) === data.totalRecords;
       dispatch({ type: brandActionTypes.BRANDS_LOADED, payload: { brands: data.brands, totalRecords: data.totalRecords, allRecordsLoaded, page: currentPage } });
     }).catch(err => {
-      console.log(err)
       dispatch(hideProgressBar());
       dispatch(showError(err.response && err.response.data.message ? err.response.data.message : err.message));
     });
@@ -51,11 +52,30 @@ export const loadBrands = (currentPage = 1, recordsPerPage = process.env.REACT_A
 
 export const deleteBrand = (id, page) => {
   return (dispatch) => {
-    axios.delete('brands/delete', { data: {id} }).then(() => {
-      dispatch({ type: brandActionTypes.DELETE_BRAND, payload: {id, page} })
+    axios.delete('brands/delete', { data: { id } }).then(() => {
+      dispatch({ type: brandActionTypes.DELETE_BRAND, payload: { id, page } })
       dispatch(showSuccess('Brand deleted successfully'))
     }).catch(error => {
       dispatch(showError(error.message))
     })
+  }
+}
+
+
+export const loadAllBrands = () => {
+  return (dispatch, getState) => {
+    const state = getState();
+    if (state.brands.allBrandsLoaded) // don't send request again and again if all records have loaded
+      return;
+
+    dispatch(showProgressBar());
+    axios.get('/brands/all').then(({ data }) => {
+      dispatch(hideProgressBar());
+
+      dispatch({ type: brandActionTypes.ALL_BRANDS_LOADED, payload: data.brands });
+    }).catch(err => {
+      dispatch(hideProgressBar());
+      dispatch(showError(err.response && err.response.data.message ? err.response.data.message : err.message));
+    });
   }
 }

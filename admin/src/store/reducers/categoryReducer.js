@@ -6,7 +6,9 @@ const initialState = {
     allRecordsLoaded: false,
     paginationArray: [],
     rowsPerPage: process.env.REACT_APP_RECORDS_PER_PAGE,
-    paginationCurrentPage: 0
+    paginationCurrentPage: 0,
+    allCategories: [],
+    allCategoriesLoaded: false,
 }
 
 function categoryReducer(state = initialState, action) {
@@ -74,7 +76,6 @@ function categoryReducer(state = initialState, action) {
                 let newPageRecord = { startIndex: state.categories.length, endIndex: updatedCategoriesArray.length };
                 oldPaginationArray[action.payload.page] = newPageRecord;
             }
-            console.log(state.categories)
             return {
                 ...state,
                 totalRecords: action.payload.totalRecords,
@@ -86,6 +87,10 @@ function categoryReducer(state = initialState, action) {
             return initialState
         case categoryActionTypes.UPDATE_ROWS_PERPAGE:
             return { ...state, rowsPerPage: action.payload }
+
+        case categoryActionTypes.ALL_CATEGORIES_LOADED:
+            return { ...state, allCategories: [...action.payload, state.allCategories ], allCategoriesLoaded: true }
+
         case categoryActionTypes.UPDATE_PAGINATION_CURRENT_PAGE:
             return {
                 ...state,

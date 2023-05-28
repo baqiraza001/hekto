@@ -6,6 +6,7 @@ import authReducer from "./authReducer";
 import productReducer from "./productReducer";
 import categoryReducer from "./categoryReducer";
 import brandReducer from "./brandReducer";
+import reviewReducer from "./reviewReducer";
 
 const allReducers = {
     users: userReducer,
@@ -15,6 +16,7 @@ const allReducers = {
     products: productReducer,
     categories: categoryReducer,
     brands: brandReducer,
+    reviews: reviewReducer,
 }
 
 const rootReducer = combineReducers(allReducers);

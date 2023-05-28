@@ -1,17 +1,17 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Grid, Box, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, IconButton, Paper, Pagination, Chip } from '@mui/material';
+import { Grid, Box, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, IconButton, Paper, Pagination, Chip, Typography, Button } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { connect } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import TableContainer from '@mui/material/TableContainer';
 import { deleteUser, loadUsers, userActionTypes } from '../../store/actions/userActions';
-
 import DeletePopUp from '../library/DeletePopup';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'date-fns';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import AddIcon from '@mui/icons-material/Add';
 
 const columns = [
   { id: 'userName', label: 'Name', },
@@ -113,9 +113,9 @@ function Users({ users, totalRecords, paginationArray, dispatch }) {
   const totalPages = useMemo(() => Math.ceil(totalRecords / rowsPerPage), [users, rowsPerPage]);
 
   useEffect(() => {
-      if (!paginationArray[page]){
-        dispatch(loadUsers(page, rowsPerPage))
-      }
+    if (!paginationArray[page]) {
+      dispatch(loadUsers(page, rowsPerPage))
+    }
 
   }, [page, rowsPerPage])
 
@@ -140,10 +140,27 @@ function Users({ users, totalRecords, paginationArray, dispatch }) {
     }
   }, [users, page, rowsPerPage]);
 
+
+  const refreshList = () => {
+    dispatch({ type: userActionTypes.RESET_USER })
+    if (page === 0)
+      dispatch(loadUsers(page, rowsPerPage))
+    else
+      setPage(0);
+  }
+
+
   return (
     <Grid container>
       <Grid item md={12} xs={12}>
         <TableContainer component={Paper} className={classes.tableContainer}>
+          <Box display="flex" justifyContent='space-between' m={3}>
+            <Typography variant="h5">Users</Typography>
+            <Box>
+              <Button component={Link} to="/admin/users/add" variant="outlined" startIcon={<AddIcon />}>Add</Button>
+              <Button sx={{ ml: 1 }} onClick={refreshList} variant="outlined" endIcon={<RefreshIcon />}>Refresh</Button>
+            </Box>
+          </Box>
           <Table aria-label="customized table">
             <TableHead>
               <TableRow>
@@ -156,7 +173,7 @@ function Users({ users, totalRecords, paginationArray, dispatch }) {
             </TableHead>
             <TableBody>
               {visibleRows.map((row) => {
-                if(row.is_deleted) return;
+                if (row.is_deleted) return;
                 return <TableRow key={row._id} className={classes.headerRow}>
                   <TableCell>{row.name}</TableCell>
                   <TableCell>{row.email}</TableCell>

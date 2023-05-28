@@ -47,7 +47,8 @@ function brandReducer(state = initialState, action) {
                 totalRecords: state.totalRecords + 1,
                 paginationArray: oldPaginations,
                 allRecordsLoaded: updatedAllRecordsLoaded,
-                paginationCurrentPage: updatedPaginationCurrentPage
+                paginationCurrentPage: updatedPaginationCurrentPage,
+                allBrandsLoaded: false
             }
 
         case brandActionTypes.EDIT_BRAND:
@@ -55,7 +56,8 @@ function brandReducer(state = initialState, action) {
             newBrandsForEditBrand[action.payload.brandIndex] = action.payload.brand;
             return {
                 ...state,
-                brands: newBrandsForEditBrand
+                brands: newBrandsForEditBrand,
+                allBrandsLoaded: false
             }
 
         case brandActionTypes.DELETE_BRAND:
@@ -92,6 +94,7 @@ function brandReducer(state = initialState, action) {
             return {
                 ...state,
                 brands: newBrands,
+                allBrandsLoaded: false
                 // totalRecords: state.totalRecords - 1
             }
         case brandActionTypes.BRANDS_LOADED:
@@ -121,7 +124,7 @@ function brandReducer(state = initialState, action) {
             }
 
         case brandActionTypes.ALL_BRANDS_LOADED:
-            return { ...state, allBrands: [...action.payload, state.allBrands], allBrandsLoaded: true }
+            return { ...state, allBrands: action.payload, allBrandsLoaded: true }
         default:
             return state;
     }

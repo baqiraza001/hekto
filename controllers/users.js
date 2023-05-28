@@ -9,6 +9,7 @@ const { randomBytes } = require('crypto');
 const multer = require('multer');
 const fs = require('fs').promises;
 const path = require('path');
+const fse = require('fs-extra');
 
 const router = express.Router();
 router.use(['/profile-update', '/add', '/edit', '/delete', "/profile"], verifyUser);
@@ -167,13 +168,12 @@ router.post("/profile-update", upload.single('profile_picture'), async (req, res
       name: req.body.name,
       phone_number: req.body.phone_number,
     }
-    if(req.file && req.file.filename)
-    {
+    if (req.file && req.file.filename) {
       record.profile_picture = req.file.filename;
-      if(req.user.profile_picture && req.user.profile_picture !== req.file.filename)
-      {
+      if (req.user.profile_picture && req.user.profile_picture !== req.file.filename) {
         const oldPicPath = `content/${req.user._id}/${req.user.profile_picture}`;
-        await fs.unlink(oldPicPath);
+        if (fse.existsSync(oldPicPath))
+          await fs.unlink(oldPicPath);
       }
     }
     if (!req.body.name) throw new Error("Name is required");

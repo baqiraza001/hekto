@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Grid, Box, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, IconButton, Paper, Pagination, Chip } from '@mui/material';
+import { Grid, Box, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, IconButton, Paper, Pagination, Typography, Button } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { connect } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
@@ -11,6 +11,8 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'date-fns';
 import DeletePopUp from '../library/DeletePopup';
 import { brandActionTypes, deleteBrand, loadBrands } from '../../store/actions/brandsActions.js';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import AddIcon from '@mui/icons-material/Add';
 
 const columns = [
   { id: 'brandName', label: 'Name', },
@@ -84,9 +86,9 @@ function Brands({ brands, totalRecords, paginationArray, dispatch }) {
   const totalPages = useMemo(() => Math.ceil(totalRecords / rowsPerPage), [brands, rowsPerPage]);
 
   useEffect(() => {
-      if (!paginationArray[page]){
-        dispatch(loadBrands(page, rowsPerPage))
-      }
+    if (!paginationArray[page]) {
+      dispatch(loadBrands(page, rowsPerPage))
+    }
 
   }, [page, rowsPerPage])
 
@@ -111,10 +113,25 @@ function Brands({ brands, totalRecords, paginationArray, dispatch }) {
     }
   }, [brands, page, rowsPerPage]);
 
+  const refreshList = () => {
+    dispatch({ type: brandActionTypes.RESET_BRAND })
+    if(page === 0)
+      dispatch(loadBrands(page, rowsPerPage))
+    else
+      setPage(0);
+  }
+
   return (
     <Grid container>
       <Grid item md={12} xs={12}>
         <TableContainer component={Paper} className={classes.tableContainer}>
+          <Box display="flex" justifyContent='space-between' m={3}>
+            <Typography variant="h5">Brands</Typography>
+            <Box>
+              <Button component={Link} to="/admin/brands/add" variant="outlined" startIcon={<AddIcon />}>Add</Button>
+              <Button sx={{ ml: 1 }} onClick={refreshList} variant="outlined" endIcon={<RefreshIcon />}>Refresh</Button>
+            </Box>
+          </Box>
           <Table aria-label="customized table">
             <TableHead>
               <TableRow>
@@ -127,7 +144,7 @@ function Brands({ brands, totalRecords, paginationArray, dispatch }) {
             </TableHead>
             <TableBody>
               {visibleRows.map((row) => {
-                if(row.is_deleted) return;
+                if (row.is_deleted) return;
                 return <TableRow key={row._id} className={classes.headerRow}>
                   <TableCell>{row.name}</TableCell>
                   <TableCell>{row.description}</TableCell>
@@ -142,7 +159,7 @@ function Brands({ brands, totalRecords, paginationArray, dispatch }) {
                         <FontAwesomeIcon icon={faEdit} style={{ fontSize: "1rem" }} />
                       </IconButton>
                     </Link>
-                    <DeletePopUp id={row._id} page={page}  actionToDispatch={deleteBrand} />
+                    <DeletePopUp id={row._id} page={page} actionToDispatch={deleteBrand} />
                   </TableCell>
                 </TableRow>
               }

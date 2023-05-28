@@ -46,7 +46,8 @@ function categoryReducer(state = initialState, action) {
                 totalRecords: state.totalRecords + 1,
                 paginationArray: oldPaginations,
                 allRecordsLoaded: updatedAllRecordsLoaded,
-                paginationCurrentPage: updatedPaginationCurrentPage
+                paginationCurrentPage: updatedPaginationCurrentPage,
+                allCategoriesLoaded: false
             }
 
         case categoryActionTypes.EDIT_CATEGORY:
@@ -54,7 +55,8 @@ function categoryReducer(state = initialState, action) {
             newCategoriesForEditCategory[action.payload.categoryIndex] = action.payload.category;
             return {
                 ...state,
-                categories: newCategoriesForEditCategory
+                categories: newCategoriesForEditCategory,
+                allCategoriesLoaded: false
             }
 
         case categoryActionTypes.DELETE_CATEGORY:
@@ -67,6 +69,7 @@ function categoryReducer(state = initialState, action) {
             return {
                 ...state,
                 categories: newCategories,
+                allCategoriesLoaded: false
             }
         case categoryActionTypes.CATEGORIES_LOADED:
             let updatedCategoriesArray = [...state.categories, ...action.payload.categories];
@@ -89,8 +92,7 @@ function categoryReducer(state = initialState, action) {
             return { ...state, rowsPerPage: action.payload }
 
         case categoryActionTypes.ALL_CATEGORIES_LOADED:
-            return { ...state, allCategories: [...action.payload, state.allCategories ], allCategoriesLoaded: true }
-
+            return { ...state, allCategories: action.payload, allCategoriesLoaded: true }
         case categoryActionTypes.UPDATE_PAGINATION_CURRENT_PAGE:
             return {
                 ...state,

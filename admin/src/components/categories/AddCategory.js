@@ -26,7 +26,6 @@ const AddCategory = () => {
     try {
       let result = await axios.post( "/categories/add", data );
       dispatch(addCategory(result.data.category));
-      dispatch({ type: categoryActionTypes.ALL_CATEGORIES_LOADED, payload: result.data.category });
       const fields = form.getRegisteredFields(); // Get all the registered field names
       fields.forEach((field) => {
         form.resetFieldState(field); // Reset the touched state for each field
@@ -84,14 +83,6 @@ const AddCategory = () => {
                 ))}
               </Box>
             )}
-            <Box mt={2}>
-              {/* {error && <Alert severity="error">{error}</Alert>} */}
-            </Box>
-            <Box mt={2}>
-              {submitSucceeded && !submitting && (
-                <Alert color="success">Category Added Successfully</Alert>
-              )}
-            </Box>
           </form>
         )}
       />

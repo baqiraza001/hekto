@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Grid, Box, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, IconButton, Paper, Pagination, Chip, Rating } from '@mui/material';
+import { Grid, Box, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, IconButton, Paper, Pagination, Chip, Rating, Button, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { connect } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -12,6 +12,8 @@ import { format } from 'date-fns';
 import { deleteProduct, loadProducts, productActionTypes } from '../../store/actions/productActions';
 import DeletePopUp from '../library/DeletePopup';
 import { reviewActionTypes } from '../../store/actions/reviewActions';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import AddIcon from '@mui/icons-material/Add';
 
 const columns = [
   { id: 'productName', label: 'Name', },
@@ -145,10 +147,25 @@ function Products({ products, totalRecords, paginationArray, categories, dispatc
     navigate(url)
   }
 
+  const refreshList = () => {
+    dispatch({ type: productActionTypes.RESET_PRODUCT })
+    if (page === 0)
+      dispatch(loadProducts(page, rowsPerPage))
+    else
+      setPage(0);
+  }
+
   return (
     <Grid container>
       <Grid item md={12} xs={12}>
         <TableContainer component={Paper} className={classes.tableContainer}>
+          <Box display="flex" justifyContent='space-between' m={3}>
+            <Typography variant="h5">Products</Typography>
+            <Box>
+              <Button component={Link} to="/admin/products/add" variant="outlined" startIcon={<AddIcon />}>Add</Button>
+              <Button sx={{ ml: 1 }} onClick={refreshList} variant="outlined" endIcon={<RefreshIcon />}>Refresh</Button>
+            </Box>
+          </Box>
           <Table aria-label="customized table">
             <TableHead>
               <TableRow>

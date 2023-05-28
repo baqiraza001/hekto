@@ -16,14 +16,16 @@ export const authActionsType = {
 export const updateUser = (user) => ({ type: authActionsType.UPDATE_USER, payload: user });
 
 export const signin = (user, token) => {
-  localStorage.setItem("token", token)
-  return (
-    {
-      type: authActionsType.SIGN_IN,
-      user,
-      token
-    }
-  )
+  return (dispatch, getState) => {
+    localStorage.setItem("token", token)
+
+    axios.get("/configuration").then(({ data }) => {
+      dispatch({ type: authActionsType.UPDATE_CONFIGURATION, payload: data.configuration });
+      dispatch({ type: authActionsType.DASHBAORD_DATA_LOADED, payload: { totalUsers: data.totalUsers, totalCategories: data.totalCategories, totalBrands: data.totalBrands, totalProducts: data.totalProducts } })
+      dispatch({ type: authActionsType.SIGN_IN, user, token })
+    })
+
+  }
 }
 
 export const signOut = () => {
@@ -43,9 +45,8 @@ export const loadAuth = () => {
 
     axios.get('/users/profile').then(result => {
       axios.get("/configuration").then(({ data }) => {
-        dispatch({ type: authActionsType.AUTH_LOADED, payload: {user: result.data.user, configuration: data.configuration } });
+        dispatch({ type: authActionsType.AUTH_LOADED, payload: { user: result.data.user, configuration: data.configuration } });
         dispatch({ type: authActionsType.DASHBAORD_DATA_LOADED, payload: { totalUsers: data.totalUsers, totalCategories: data.totalCategories, totalBrands: data.totalBrands, totalProducts: data.totalProducts } })
-
       })
 
     }).catch(error => {

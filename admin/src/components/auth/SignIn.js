@@ -15,8 +15,8 @@ const SignIn = () => {
     axios.post("/users/login", data).then(({ data }) => {
       dispatch(signin(data.user, data.token))
       localStorage.setItem("token", data.token)
-        dispatch(showSuccess('Logged in successfully'))
-      }).catch(err => {
+      dispatch(showSuccess('Logged in successfully'))
+    }).catch(err => {
       let message = err && err.response && err.response.data ? err.response.data.error : err.message
       dispatch(showError(message))
     })

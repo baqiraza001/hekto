@@ -15,21 +15,16 @@ import Brands from './components/brands/Brands';
 import AddBrand from './components/brands/AddBrand';
 import EditBrand from './components/brands/EditBrand';
 import Reviews from './components/products/Reviews';
+import NotFound from './components/NotFound';
+import Configuration from './components/Configuration';
 
 function AppRoutes() {
-
-    const routes = [
-        {
-            path: '/admin',
-            element: Template,
-        },
-
-    ];
-
     return (
         <Routes>
             <Route path="/admin/" element={<Template />}>
+                <Route index element={<Dashboard />} />
                 <Route path="dashboard" element={<Dashboard />} />
+                <Route path="settings" element={<Configuration />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="users/add" element={<AddUser />} />
                 <Route path="users" element={<Users />} />
@@ -55,6 +50,8 @@ function AppRoutes() {
                 <Route path="brands/add" element={<AddBrand />} />
                 <Route path="brands/edit/:id/:rows/:page/" element={<EditBrand />} />
                 <Route path="brands/:recordsPerPage/:pageNumber/" element={<Brands />} />
+
+                <Route path="*" element={<NotFound />} />
             </Route>
         </Routes >
     );

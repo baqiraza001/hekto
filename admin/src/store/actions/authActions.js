@@ -8,7 +8,9 @@ export const authActionsType = {
   AUTH_FAILED: "authFailed",
   LOAD_TOKEN: "loadToken",
   AUTH_UPDATED: "authUpdated",
-  UPDATE_USER: 'UPDATE_USER'
+  UPDATE_USER: 'UPDATE_USER',
+  UPDATE_CONFIGURATION: 'UPDATE_CONFIGURATION',
+  DASHBAORD_DATA_LOADED: 'DASHBAORD_DATA_LOADED'
 }
 
 export const updateUser = (user) => ({ type: authActionsType.UPDATE_USER, payload: user });
@@ -40,7 +42,12 @@ export const loadAuth = () => {
     })
 
     axios.get('/users/profile').then(result => {
-      dispatch({ type: authActionsType.AUTH_LOADED, payload: result.data.user })
+      axios.get("/configuration").then(({ data }) => {
+        dispatch({ type: authActionsType.AUTH_LOADED, payload: {user: result.data.user, configuration: data.configuration } });
+        dispatch({ type: authActionsType.DASHBAORD_DATA_LOADED, payload: { totalUsers: data.totalUsers, totalCategories: data.totalCategories, totalBrands: data.totalBrands, totalProducts: data.totalProducts } })
+
+      })
+
     }).catch(error => {
       if (token)
         dispatch(showError(error.message))

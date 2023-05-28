@@ -10,6 +10,7 @@ const productController = require("./controllers/products")
 const categoriesController = require("./controllers/categories")
 const brandsController = require("./controllers/brands")
 const reviewsController = require("./controllers/reviews")
+const configurationController = require("./controllers/configuration")
 
 //app.use
 app.use(express.json());
@@ -20,6 +21,7 @@ app.use('/api/products', productController);
 app.use('/api/categories', categoriesController);
 app.use('/api/brands', brandsController);
 app.use('/api/reviews', reviewsController);
+app.use('/api/configuration', configurationController);
 
 mongoose.connect(process.env.MONGODB_CONNECTION_URI).then(() => {
     console.log('database connected successfully')

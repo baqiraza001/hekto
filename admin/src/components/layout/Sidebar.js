@@ -15,7 +15,6 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import logo from '../../static/logo.png'
 import { Link, Outlet } from 'react-router-dom';
 import ListIcon from "@mui/icons-material/List";
 import { AddCircleOutline, PeopleOutline } from "@mui/icons-material";
@@ -28,6 +27,7 @@ import Inventory2Icon from '@mui/icons-material/Inventory2';
 import AvatarMenu from '../library/AvatarMenu';
 import ListDropdown from '../library/ListDropdown';
 import CategoryIcon from '@mui/icons-material/Category';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 
 const drawerWidth = 240;
 
@@ -109,7 +109,7 @@ const drodownsList = [
   },
   {
     title: 'Products',
-    icon: <PeopleOutline />,
+    icon: <ListIcon />,
     items: [{ to: '/admin/products/add', text: 'Add Product', icon: <AddCircleOutline /> }, { to: '/admin/products', text: 'Products', icon: <Inventory2Icon /> }]
   },
   {
@@ -139,7 +139,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-function Sidebar({ progressBar }) {
+function Sidebar({ progressBar, configuration }) {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
@@ -154,7 +154,7 @@ function Sidebar({ progressBar }) {
       <CssBaseline />
       <AppBar position="fixed" sx={{ background: "var(--purple)", fontFamily: "var(--josefin)" }} open={open}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Box sx={{ display: "flex" }}>
+          <Box sx={{ display: "flex", alignItems: 'center' }}>
             <IconButton
               color="inherit"
               aria-label="open drawer"
@@ -167,7 +167,7 @@ function Sidebar({ progressBar }) {
               <MenuIcon />
             </IconButton>
             <Typography variant="h6" noWrap component="div">
-              Hekto Admin Panel
+              {configuration.siteName}
             </Typography>
           </Box>
           <AvatarMenu />
@@ -177,10 +177,25 @@ function Sidebar({ progressBar }) {
 
       <Drawer variant="permanent" open={open}>
         <DrawerHeader sx={{ justifyContent: 'center' }}>
-          {theme.direction === 'rtl' ? <img src={logo} alt="Hekto" /> : <img src={logo} alt="Hekto" />}
+          <Link to="/" target='_blank'>
+          {theme.direction === 'rtl' ? <img style={{ maxWidth: '100%', height: 'auto'}} src={ process.env.REACT_APP_URL + `content/configuration/${configuration.logo}`} alt={configuration.siteName} /> : <img style={{ maxWidth: '100%', height: 'auto'}} src={ process.env.REACT_APP_URL + `content/configuration/${configuration.logo}`} alt={configuration.siteName} />}
+          </Link>
         </DrawerHeader>
         <Divider />
         <List>
+          <Link
+            to="/admin/dashboard"
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <ListItem key={"dashboard"} disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <DashboardIcon />
+                </ListItemIcon>
+                <ListItemText primary="Dashboard" />
+              </ListItemButton>
+            </ListItem>
+          </Link>
           <Link
             to="/admin/settings"
             style={{ textDecoration: "none", color: "inherit" }}
@@ -217,7 +232,8 @@ function Sidebar({ progressBar }) {
 
 const mapStateToProps = state => {
   return {
-    progressBar: state.progressBar
+    progressBar: state.progressBar,
+    configuration: state.auth.configuration
   }
 }
 

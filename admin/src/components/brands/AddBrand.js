@@ -83,14 +83,6 @@ const AddBrand = () => {
                 ))}
               </Box>
             )}
-            <Box mt={2}>
-              {/* {error && <Alert severity="error">{error}</Alert>} */}
-            </Box>
-            <Box mt={2}>
-              {submitSucceeded && !submitting && (
-                <Alert color="success">Brand Added Successfully</Alert>
-              )}
-            </Box>
           </form>
         )}
       />

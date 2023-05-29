@@ -12,36 +12,52 @@ const initialState = {
 function productReducer(state = initialState, action) {
     switch (action.type) {
         case productActionTypes.ADD_PRODUCT:
-            let nenwProductsArray = [...state.products];
+            let newProductsArray = [...state.products];
             let oldPaginations = [...state.paginationArray];
             let lastPaginationPage = Math.ceil(parseInt(state.totalRecords) / parseInt(state.rowsPerPage)) - 1;
             let updatedAllRecordsLoaded = state.allRecordsLoaded;
             let updatedPaginationCurrentPage = state.paginationCurrentPage;
+            let updatedTotalRecords =  state.totalRecords;
 
             if (lastPaginationPage < 0) {
                 updatedAllRecordsLoaded = false;
             }
+            else
+                updatedTotalRecords = state.totalRecords + 1;
 
             if (oldPaginations[lastPaginationPage]) // if user already clicked on last page
             {
-                nenwProductsArray = [...state.products, action.payload];
                 let lastPaginationRecord = oldPaginations[lastPaginationPage];
                 let lastPaginationStartIndex = lastPaginationRecord.startIndex;
                 let lastPaginationEndIndex = lastPaginationRecord.endIndex;
-                if ((lastPaginationEndIndex - lastPaginationStartIndex) == (state.rowsPerPage)) // if last page has more than rowsPerPage Records, than add new page to pagination array
+
+                let lastPaginationPageAfterNewRecord = Math.ceil(parseInt(state.totalRecords + 1) / parseInt(state.rowsPerPage)) - 1;
+
+                if (lastPaginationPageAfterNewRecord !== lastPaginationPage) // if last page is not equal to newly calculated page, it means we have to add new page to pagination array
                 {
-                    updatedPaginationCurrentPage = lastPaginationPage + 1;
-                    oldPaginations[lastPaginationPage + 1] = { startIndex: lastPaginationEndIndex, endIndex: lastPaginationEndIndex + 1 }
+                    let totalRowsPerPage = parseInt(state.rowsPerPage);
+
+                    newProductsArray = [...state.products, action.payload];
+                    oldPaginations[lastPaginationPageAfterNewRecord] = { startIndex: newProductsArray.length - 1, endIndex: newProductsArray.length + totalRowsPerPage }
+
+                    for (let index = 1; index < totalRowsPerPage; index++) {
+                        newProductsArray.push(null);
+                    }
                 }
-                else { // update the lastPaginatinEndIndex to get the new record added
-                    oldPaginations[lastPaginationPage] = { startIndex: lastPaginationStartIndex, endIndex: lastPaginationEndIndex + 1 }
+                else { // update the records array index to insert record at index which is null
+                    for (let index = lastPaginationStartIndex; index < lastPaginationEndIndex; index++) {
+                        if (!newProductsArray[index]) {
+                            newProductsArray[index] = action.payload;
+                            break;
+                        }
+                    }
                 }
             }
 
             return {
                 ...state,
-                products: nenwProductsArray,
-                totalRecords: state.totalRecords + 1,
+                products: newProductsArray,
+                totalRecords: updatedTotalRecords,
                 paginationArray: oldPaginations,
                 allRecordsLoaded: updatedAllRecordsLoaded,
                 paginationCurrentPage: updatedPaginationCurrentPage
@@ -91,22 +107,32 @@ function productReducer(state = initialState, action) {
                 products: newProducts,
                 // totalRecords: state.totalRecords - 1
             }
-        case productActionTypes.PRODUCTS_LOADED:
-            let updatedProductsArray = [...state.products, ...action.payload.products];
-            let oldPaginationArray = [...state.paginationArray];
-
-            if (action.payload.products) {
-                let newPageRecord = { startIndex: state.products.length, endIndex: updatedProductsArray.length };
-                oldPaginationArray[action.payload.page] = newPageRecord;
-            }
-
-            return {
-                ...state,
-                totalRecords: action.payload.totalRecords,
-                allRecordsLoaded: action.payload.allRecordsLoaded,
-                products: updatedProductsArray,
-                paginationArray: oldPaginationArray
-            }
+            case productActionTypes.PRODUCTS_LOADED:
+                let updatedProductsArray = [...state.products, ...action.payload.products];
+                let oldPaginationArray = [...state.paginationArray];
+    
+                let totalRowsPerPage = parseInt(state.rowsPerPage);
+                if (action.payload.products.length < totalRowsPerPage) {
+                    const totalNullRecordsToInsert = totalRowsPerPage - action.payload.products.length;
+    
+                    for (let index = 0; index < totalNullRecordsToInsert; index++) {
+                        updatedProductsArray.push(null);
+                    }
+                }
+    
+    
+                if (action.payload.products) {
+                    let newPageRecord = { startIndex: state.products.length, endIndex: updatedProductsArray.length };
+                    oldPaginationArray[action.payload.page] = newPageRecord;
+                }
+    
+                return {
+                    ...state,
+                    totalRecords: action.payload.totalRecords,
+                    allRecordsLoaded: action.payload.allRecordsLoaded,
+                    products: updatedProductsArray,
+                    paginationArray: oldPaginationArray
+                }
         case productActionTypes.RESET_PRODUCT:
             return initialState
         case productActionTypes.UPDATE_ROWS_PERPAGE:

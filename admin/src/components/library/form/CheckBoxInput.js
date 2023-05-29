@@ -7,7 +7,7 @@ export default function CheckBoxInput(props) {
     return (
         <>
             <FormGroup>
-                <FormControlLabel control={<Checkbox {...input} checked={checked} />} {...rest} error={touched && error ? true : false} />
+                <FormControlLabel control={<Checkbox {...input} checked={checked} />} {...rest}  />
             </FormGroup>
             <FormHelperText error>
                 {

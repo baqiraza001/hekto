@@ -100,7 +100,7 @@ function EditBrand({ brands }) {
                                 ))}
                             </Box>
                         )}
-                       
+
                     </form>
                 )}
             />

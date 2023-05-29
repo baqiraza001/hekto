@@ -12,6 +12,7 @@ export const brandActionTypes = {
 
   "UPDATE_PAGINATION_CURRENT_PAGE": "UPDATE_PAGINATION_CURRENT_PAGE",
   "ALL_BRANDS_LOADED": "ALL_BRANDS_LOADED",
+  "UPDATE_DELETE_PAGINATION_PAGE": "UPDATE_DELETE_PAGINATION_PAGE",
 }
 
 export const addBrand = (brand) => {
@@ -39,9 +40,12 @@ export const loadBrands = (currentPage = 1, recordsPerPage = process.env.REACT_A
       const state = getState();
       if (state.brands.brands.length === 0)
         dispatch(hideProgressBar());
+        
+      if(data.totalRecords === 0) return;
 
       const allRecordsLoaded = (state.brands.brands.length + data.brands.length) === data.totalRecords;
       dispatch({ type: brandActionTypes.BRANDS_LOADED, payload: { brands: data.brands, totalRecords: data.totalRecords, allRecordsLoaded, page: currentPage } });
+      dispatch({ type: brandActionTypes.UPDATE_PAGINATION_CURRENT_PAGE, payload: currentPage })
     }).catch(err => {
       dispatch(hideProgressBar());
       dispatch(showError(err.response && err.response.data.message ? err.response.data.message : err.message));

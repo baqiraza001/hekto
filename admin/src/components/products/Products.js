@@ -103,11 +103,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-function Products({ products, totalRecords, paginationArray, categories, dispatch }) {
+function Products({ products, totalRecords, paginationArray, stateRowsPerPage, dispatch }) {
   const { recordsPerPage, pageNumber } = useParams(); // while coming back from Edit item
 
   const [page, setPage] = useState(pageNumber ? parseInt(pageNumber) : 0);
-  const [rowsPerPage, setRowsPerPage] = useState(recordsPerPage ? parseInt(recordsPerPage) : parseInt(process.env.REACT_APP_RECORDS_PER_PAGE));
+  const [rowsPerPage, setRowsPerPage] = useState(recordsPerPage ? parseInt(recordsPerPage) : parseInt(stateRowsPerPage));
   const classes = useStyles();
 
   const totalPages = useMemo(() => Math.ceil(totalRecords / rowsPerPage), [products, rowsPerPage]);
@@ -178,20 +178,14 @@ function Products({ products, totalRecords, paginationArray, categories, dispatc
             </TableHead>
             <TableBody>
               {visibleRows.map((row) => {
+                if (!row) return;
                 if (row.is_deleted) return;
                 return <TableRow key={row._id} className={classes.headerRow}>
                   <TableCell>{row.name}</TableCell>
                   <TableCell>{row.price}</TableCell>
                   <TableCell>{row.sale_price}</TableCell>
                   <TableCell><Rating value={row.averageRating} precision={0.5} readOnly /></TableCell>
-                  <TableCell>
-                    {
-                      categories && categories.map(category => {
-                        if (row.categoryId == category._id)
-                          return <Chip size='small' label={category.name} color="info" />
-                      })
-                    }
-                  </TableCell>
+                  <TableCell><Chip size='small' label={row.categoryName} color="info" /></TableCell>
                   <TableCell>
                     {
                       row.active == process.env.REACT_APP_STATUS_ACTIVE ?
@@ -256,7 +250,7 @@ const mapStateToProps = state => {
     totalRecords: state.products.totalRecords,
     loadingRecords: state.progressBar.loading,
     paginationArray: state.products.paginationArray,
-    categories: state.categories.categories,
+    stateRowsPerPage: state.brands.rowsPerPage
   }
 }
 

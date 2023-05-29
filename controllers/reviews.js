@@ -5,7 +5,7 @@ const { verifyUser } = require("../milddlewares/auth");
 const { isSuperAdmin, calculateAverageRating } = require("../utils/util");
 
 const router = express.Router();
-router.use(verifyUser)
+router.use(['/delete'], verifyUser);
 
 
 // Adding review
@@ -19,7 +19,7 @@ router.post("/add", async (req, res) => {
 
         if (!productId)
             throw new Error("Invalid Request")
-        if (rating < 0 && rating > 5)
+        if (rating < 0 || rating > 5)
             throw new Error("Invalid Request")
 
         const review = new Review({
@@ -37,11 +37,11 @@ router.post("/add", async (req, res) => {
     }
 });
 
-// Deleting Products
+// Deleting Reviews
 router.delete('/delete', async (req, res) => {
     try {
         if (isSuperAdmin(req.user))
-            throw new Error("Invalid Request 1")
+            throw new Error("Invalid Request")
 
         //  if id is not available
         if (!req.body.id)
@@ -50,12 +50,12 @@ router.delete('/delete', async (req, res) => {
 
         // check for valid object Id using mongoose this will check the id is this id is according to formula of #
         if (!mongoose.isValidObjectId(req.body.id))
-            throw new Error("Invalid Id 2");
+            throw new Error("Invalid id");
 
         // check for the valid id
         const review = await Review.findById(req.body.id)
         if (!review)
-            throw new Error("Invalid Id 3");
+            throw new Error("Invalid id");
 
         await Review.findByIdAndDelete(req.body.id)
 
@@ -67,7 +67,7 @@ router.delete('/delete', async (req, res) => {
     }
 })
 
-//Getting Products
+//Getting Reviews
 router.get("/", async (req, res) => {
     try {
         const skip = parseInt(req.query.skip ? req.query.skip : 0);

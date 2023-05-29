@@ -40,8 +40,11 @@ export const loadCategories = (currentPage = 1, recordsPerPage = process.env.REA
       if (state.categories.categories.length === 0)
         dispatch(hideProgressBar());
 
+      if (data.totalRecords === 0) return;
+
       const allRecordsLoaded = (state.categories.categories.length + data.categories.length) === data.totalRecords;
       dispatch({ type: categoryActionTypes.CATEGORIES_LOADED, payload: { categories: data.categories, totalRecords: data.totalRecords, allRecordsLoaded, page: currentPage } });
+      dispatch({ type: categoryActionTypes.UPDATE_PAGINATION_CURRENT_PAGE, payload: currentPage })
     }).catch(err => {
       dispatch(hideProgressBar());
       dispatch(showError(err.response && err.response.data.message ? err.response.data.message : err.message));

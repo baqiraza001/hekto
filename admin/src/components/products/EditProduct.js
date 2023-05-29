@@ -1,10 +1,10 @@
 import EditIcon from '@mui/icons-material/Edit';
-import { Alert, Button, CircularProgress } from '@mui/material';
+import { Alert, Button, CircularProgress, FormHelperText } from '@mui/material';
 import { Box } from '@mui/system';
 import axios from 'axios';
 import { FORM_ERROR } from 'final-form';
 import { Field, Form } from 'react-final-form';
-import { connect, useSelector } from 'react-redux'
+import { connect } from 'react-redux'
 import { useParams, useNavigate, Navigate } from 'react-router-dom'
 import SelectInput from '../library/form/SelectInput';
 import TextInput from '../library/form/TextInput';
@@ -43,9 +43,10 @@ function EditProduct({ products, categories, brands }) {
     if (!data.name)
       errors.name = "Product Name is Required";
     else if (data.name.length < 3)
-      errors.name = "Name Should be more then 3 Char";
+      errors.name = "Name Should be more then 3 Chararacters";
     if (!data.price) errors.price = "Please Enter Price";
-    if (!data.categoryId || data.categoryId == ' ') errors.categoryId = "Please Select Category";
+    if (!data.categoryId) errors.categoryId = "Please Select Category";
+    if (!data.shortDescription) errors.shortDescription = "Short description is required";
     return errors
   };
 
@@ -114,25 +115,23 @@ function EditProduct({ products, categories, brands }) {
             <Field component={TextAreaInput} type='text' name="additionalInformation" placeholder="Additional information" label="Additional information" />
             <Field component={FileInput} name="productPictures" inputProps={{ accept: "image/*", multiple: true }} />
 
+            {!categories && <FormHelperText>Add categories first</FormHelperText>}
             <Field
               component={SelectInput}
               name="categoryId"
               value={product.categoryId}
               label="Select category"
-              options={
-                categories && categories.map(category => ({ label: category.name, value: category._id }))
-              } />
+              options={ categories && categories.map(category => ({ label: category.name, value: category._id })) }
+            />
 
+            {!brands && <FormHelperText>Add brands first</FormHelperText>}
             <Field
               component={SelectInput}
               name="brandId"
               value={product.brandId}
               label="Select brand"
-              options={
-
-                brands && brands.map(brand => ({ label: brand.name, value: brand._id }))
-
-              } />
+              options={ brands && brands.map(brand => ({ label: brand.name, value: brand._id })) }
+            />
 
             <Field component={CheckBoxInput} type="checkbox" checked={product.isFeatured} name="isFeatured" label="Featured" />
             <Field component={CheckBoxInput} type="checkbox" checked={product.isTrending} name="isTrending" label="Trending" />

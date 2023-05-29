@@ -14,40 +14,55 @@ const initialState = {
 function categoryReducer(state = initialState, action) {
     switch (action.type) {
         case categoryActionTypes.ADD_CATEGORY:
-            let nenwCategoriesArray = [...state.categories];
+            let newCategoriesArray = [...state.categories];
             let oldPaginations = [...state.paginationArray];
             let lastPaginationPage = Math.ceil(parseInt(state.totalRecords) / parseInt(state.rowsPerPage)) - 1;
             let updatedAllRecordsLoaded = state.allRecordsLoaded;
             let updatedPaginationCurrentPage = state.paginationCurrentPage;
+            let updatedTotalRecords = state.totalRecords;
 
             if (lastPaginationPage < 0) {
                 updatedAllRecordsLoaded = false;
             }
+            else
+                updatedTotalRecords = state.totalRecords + 1;
 
             if (oldPaginations[lastPaginationPage]) // if user already clicked on last page
             {
-                nenwCategoriesArray = [...state.categories, action.payload];
                 let lastPaginationRecord = oldPaginations[lastPaginationPage];
                 let lastPaginationStartIndex = lastPaginationRecord.startIndex;
                 let lastPaginationEndIndex = lastPaginationRecord.endIndex;
-                if ((lastPaginationEndIndex - lastPaginationStartIndex) === (state.rowsPerPage)) // if last page has more than rowsPerPage Records, than add new page to pagination array
+
+                let lastPaginationPageAfterNewRecord = Math.ceil(parseInt(state.totalRecords + 1) / parseInt(state.rowsPerPage)) - 1;
+
+                if (lastPaginationPageAfterNewRecord !== lastPaginationPage) // if last page is not equal to newly calculated page, it means we have to add new page to pagination array
                 {
-                    updatedPaginationCurrentPage = lastPaginationPage + 1;
-                    oldPaginations[lastPaginationPage + 1] = { startIndex: lastPaginationEndIndex, endIndex: lastPaginationEndIndex + 1 }
+                    let totalRowsPerPage = parseInt(state.rowsPerPage);
+
+                    newCategoriesArray = [...state.categories, action.payload];
+                    oldPaginations[lastPaginationPageAfterNewRecord] = { startIndex: newCategoriesArray.length - 1, endIndex: newCategoriesArray.length + totalRowsPerPage }
+
+                    for (let index = 1; index < totalRowsPerPage; index++) {
+                        newCategoriesArray.push(null);
+                    }
                 }
-                else { // update the lastPaginatinEndIndex to get the new record added
-                    oldPaginations[lastPaginationPage] = { startIndex: lastPaginationStartIndex, endIndex: lastPaginationEndIndex + 1 }
+                else { // update the records array index to insert record at index which is null
+                    for (let index = lastPaginationStartIndex; index < lastPaginationEndIndex; index++) {
+                        if (!newCategoriesArray[index]) {
+                            newCategoriesArray[index] = action.payload;
+                            break;
+                        }
+                    }
                 }
             }
 
             return {
                 ...state,
-                categories: nenwCategoriesArray,
-                totalRecords: state.totalRecords + 1,
+                categories: newCategoriesArray,
+                totalRecords: updatedTotalRecords,
                 paginationArray: oldPaginations,
                 allRecordsLoaded: updatedAllRecordsLoaded,
-                paginationCurrentPage: updatedPaginationCurrentPage,
-                allCategoriesLoaded: false
+                paginationCurrentPage: updatedPaginationCurrentPage
             }
 
         case categoryActionTypes.EDIT_CATEGORY:
@@ -75,10 +90,21 @@ function categoryReducer(state = initialState, action) {
             let updatedCategoriesArray = [...state.categories, ...action.payload.categories];
             let oldPaginationArray = [...state.paginationArray];
 
+            let totalRowsPerPage = parseInt(state.rowsPerPage);
+            if (action.payload.categories.length < totalRowsPerPage) {
+                const totalNullRecordsToInsert = totalRowsPerPage - action.payload.categories.length;
+
+                for (let index = 0; index < totalNullRecordsToInsert; index++) {
+                    updatedCategoriesArray.push(null);
+                }
+            }
+
+
             if (action.payload.categories) {
                 let newPageRecord = { startIndex: state.categories.length, endIndex: updatedCategoriesArray.length };
                 oldPaginationArray[action.payload.page] = newPageRecord;
             }
+
             return {
                 ...state,
                 totalRecords: action.payload.totalRecords,

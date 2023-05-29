@@ -50,7 +50,7 @@ router.post("/add", upload.array('productPictures[]'), async (req, res) => {
         additionalInformation: req.body.additionalInformation,
     }
 
-   
+
 
     try {
         // if(isSuperAdmin(req.user) || isAdmin(req.user))
@@ -66,10 +66,10 @@ router.post("/add", upload.array('productPictures[]'), async (req, res) => {
             await fs.mkdir(`content/products/${product._id}/`, { recursive: true });
             const movePromises = req.files.map((file) => {
                 productPicturesArr.push(file.filename);
-    
+
                 const sourcePath = file.path;
                 const targetPath = path.join(`content/products/${product._id}`, file.originalname);
-    
+
                 // Delete the existing file if it already exists
                 if (fse.existsSync(targetPath)) {
                     fse.removeSync(targetPath);
@@ -77,9 +77,9 @@ router.post("/add", upload.array('productPictures[]'), async (req, res) => {
                 return fse.move(sourcePath, targetPath);
             });
             await Promise.all(movePromises);
-    
-            await Product.findByIdAndUpdate(req.body.id, {productPictures: productPicturesArr});
-    }
+
+            await Product.findByIdAndUpdate(req.body.id, { productPictures: productPicturesArr });
+        }
 
 
         res.status(200).json({ product })
@@ -193,14 +193,50 @@ router.get("/", async (req, res) => {
     try {
         const skip = parseInt(req.query.skip ? req.query.skip : 0);
         const recordsPerPage = req.query.limit ? req.query.limit : process.env.RECORDS_PER_PAGE;
-        const totalRecords = await Product.countDocuments();
-        // const users = await User.find({}, null, { skip, limit: parseInt(recordsPerPage), sort: { created_on: -1 } });
-        const products = await Product.find({}, null, { skip, limit: parseInt(recordsPerPage) });
+
+        const pipeline = [
+            {
+                $lookup: {
+                    from: "categories", // Name of the category collection
+                    localField: "categoryId", // Field in the products collection
+                    foreignField: "_id", // Field in the category collection
+                    as: "category" // Output field name for the joined category
+                }
+            },
+            {
+                $unwind: "$category" // Unwind the category array created by $lookup
+            },
+            {
+                $skip: skip
+            },
+            {
+                $limit: parseInt(recordsPerPage)
+            },
+            {
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    price: 1,
+                    sale_price: 1,
+                    averageRating: 1,
+                    categoryId: 1,
+                    active: 1,
+                    created_on: 1,
+                    categoryName: "$category.name" // Retrieve the category name field
+                }
+            }
+        ];
+
+        const [products, [{ totalRecords }]] = await Promise.all([
+            Product.aggregate(pipeline),
+            Product.aggregate([{ $count: "totalRecords" }])
+        ]);
 
         res.status(200).json({ products, totalRecords });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
-})
+});
+
 
 module.exports = router;

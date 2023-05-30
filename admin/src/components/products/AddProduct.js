@@ -87,7 +87,7 @@ function AddProduct({ categories, brands }) {
                         <Field component={TextAreaInput} type='text' name="shortDescription" placeholder="Product short description" label="Short description" />
                         <Field component={TextInput} type='number' name="price" placeholder="Product Price" label="Price" />
                         <Field component={TextInput} type='number' name="sale_price" placeholder="Sale Price" label="Sale Price" />
-                        <Field component={TextInput} type='number' name="discountPrice" placeholder="Discount price" label="Discount price" />
+                        <Field component={TextInput} type='number' name="discountPercentage" placeholder="Discount (%)" label="Discount percentage" />
                         <Field component={TextInput} type='color' name="color" placeholder="Color" label="Color" />
                         <Field component={TextInput} type='text' name="tags" placeholder="Product Tags" label="Tags" />
                         <Field component={TextAreaInput} type='text' name="longDescription" placeholder="Product long description" label="Long Description" />

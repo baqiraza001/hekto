@@ -26,6 +26,9 @@ const productSchema = new mongoose.Schema({
   discountPrice : {
     type: Number
   },
+  discountPercentage : {
+    type: Number
+  },
   categoryId: {
     type: mongoose.Schema.Types.ObjectId,
   },

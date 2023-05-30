@@ -17,13 +17,13 @@ import AddIcon from '@mui/icons-material/Add';
 
 const columns = [
   { id: 'productName', label: 'Name', },
-  { id: 'productEmail', label: 'Price' },
   {
     id: 'sale-price',
     label: 'Sale Price',
     align: 'left',
 
   },
+  { id: 'productEmail', label: 'Discount Price' },
   { id: 'productRating', label: 'Rating' },
   {
     id: 'category',
@@ -182,8 +182,8 @@ function Products({ products, totalRecords, paginationArray, stateRowsPerPage, d
                 if (row.is_deleted) return;
                 return <TableRow key={row._id} className={classes.headerRow}>
                   <TableCell>{row.name}</TableCell>
-                  <TableCell>{row.price}</TableCell>
                   <TableCell>{row.sale_price}</TableCell>
+                  <TableCell>{row.discountPrice}</TableCell>
                   <TableCell><Rating value={row.averageRating} precision={0.5} readOnly /></TableCell>
                   <TableCell><Chip size='small' label={row.categoryName} color="info" /></TableCell>
                   <TableCell>

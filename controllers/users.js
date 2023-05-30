@@ -48,7 +48,7 @@ router.post("/login", async (req, res) => {
       throw new Error("Email is required");
     if (!req.body.password)
       throw new Error("Password is required");
-    let user = await User.findOne({ email: req.body.email });
+    let user = await User.findOne({ email: { $regex: new RegExp(req.body.email, "i") } });
     if (!user)
       throw new Error("Email or password is incorrect");
 

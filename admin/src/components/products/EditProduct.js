@@ -87,7 +87,7 @@ function EditProduct({ products, categories, brands }) {
             shortDescription: product && product.shortDescription,
             price: product && product.price,
             sale_price: product && product.sale_price,
-            discountPrice: product && product.discountPrice,
+            discountPercentage: product && product.discountPercentage,
             categoryId: product && product.categoryId,
             brandId: product && product.brandId,
             color: product && product.color,
@@ -108,7 +108,7 @@ function EditProduct({ products, categories, brands }) {
             <Field component={TextAreaInput} type='text' name="shortDescription" placeholder="Product short description" label="Short description" />
             <Field component={TextInput} type='number' name="price" placeholder="Product Price" label="Price" />
             <Field component={TextInput} type='number' name="sale_price" placeholder="Sale Price" label="Sale Price" />
-            <Field component={TextInput} type='number' name="discountPrice" placeholder="Discount Price" label="Discount Price" />
+            <Field component={TextInput} type='number' name="discountPercentage" placeholder="Discount (%)" label="Discount percentage" />
             <Field component={TextInput} type='color' name="color" placeholder="Color" label="Color" />
             <Field component={TextInput} type='text' name="tags" placeholder="Product Tags" label="Tags" />
             <Field component={TextAreaInput} type='text' name="longDescription" placeholder="Product long description" label="Long Description" />
@@ -121,7 +121,7 @@ function EditProduct({ products, categories, brands }) {
               name="categoryId"
               value={product.categoryId}
               label="Select category"
-              options={ categories && categories.map(category => ({ label: category.name, value: category._id })) }
+              options={categories && categories.map(category => ({ label: category.name, value: category._id }))}
             />
 
             {!brands && <FormHelperText>Add brands first</FormHelperText>}
@@ -130,7 +130,7 @@ function EditProduct({ products, categories, brands }) {
               name="brandId"
               value={product.brandId}
               label="Select brand"
-              options={ brands && brands.map(brand => ({ label: brand.name, value: brand._id })) }
+              options={brands && brands.map(brand => ({ label: brand.name, value: brand._id }))}
             />
 
             <Field component={CheckBoxInput} type="checkbox" checked={product.isFeatured} name="isFeatured" label="Featured" />

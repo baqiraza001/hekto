@@ -39,7 +39,7 @@ router.post("/add", upload.array('productPictures[]'), async (req, res) => {
         shortDescription: req.body.shortDescription,
         price: req.body.price,
         sale_price: req.body.sale_price,
-        discountPrice: req.body.discountPrice,
+        discountPercentage: req.body.discountPercentage,
         categoryId: req.body.categoryId,
         brandId: req.body.brandId,
         color: req.body.color,
@@ -51,11 +51,12 @@ router.post("/add", upload.array('productPictures[]'), async (req, res) => {
         additionalInformation: req.body.additionalInformation,
     }
 
-
+    if (req.body.discountPercentage)
+        record.discountPrice = (req.body.sale_price - (req.body.sale_price * (req.body.discountPercentage / 100))).toFixed(2);
 
     try {
-        // if(isSuperAdmin(req.user) || isAdmin(req.user))
-        //     throw new Error("Invalid Request")
+        if (isSuperAdmin(req.user) && isAdmin(req.user))
+            throw new Error("Invalid Requests")
 
         let product = new Product(record);
 
@@ -117,7 +118,7 @@ router.post("/edit", upload.array('productPictures[]'), async (req, res) => {
             shortDescription: req.body.shortDescription,
             price: req.body.price,
             sale_price: req.body.sale_price,
-            discountPrice: req.body.discountPrice,
+            discountPercentage: req.body.discountPercentage,
             categoryId: req.body.categoryId,
             brandId: req.body.brandId,
             color: req.body.color,
@@ -128,6 +129,8 @@ router.post("/edit", upload.array('productPictures[]'), async (req, res) => {
             longDescription: req.body.longDescription,
             additionalInformation: req.body.additionalInformation,
         }
+        if (req.body.discountPercentage)
+            record.discountPrice = (req.body.sale_price - (req.body.sale_price * (req.body.discountPercentage / 100))).toFixed(2);
 
         let productPicturesArr = [];
         if (req.files && req.files.length > 0) {
@@ -206,6 +209,9 @@ router.delete('/delete', async (req, res) => {
 //Getting Products
 router.get("/", async (req, res) => {
     try {
+        if (isSuperAdmin(req.user) && isAdmin(req.user))
+            throw new Error("Invalid Request")
+
         const skip = parseInt(req.query.skip ? req.query.skip : 0);
         const recordsPerPage = req.query.limit ? req.query.limit : process.env.RECORDS_PER_PAGE;
 
@@ -233,6 +239,7 @@ router.get("/", async (req, res) => {
                     name: 1,
                     price: 1,
                     sale_price: 1,
+                    discountPrice: 1,
                     averageRating: 1,
                     categoryId: 1,
                     active: 1,

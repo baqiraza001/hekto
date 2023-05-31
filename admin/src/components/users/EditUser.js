@@ -4,7 +4,7 @@ import axios from 'axios';
 import { FORM_ERROR } from 'final-form';
 import React from 'react'
 import { Field, Form } from 'react-final-form';
-import { connect, useSelector } from 'react-redux'
+import { connect } from 'react-redux'
 import { useParams, useNavigate } from 'react-router-dom'
 import SelectInput from '../library/form/SelectInput';
 import TextInput from '../library/form/TextInput';
@@ -33,7 +33,7 @@ function EditUser({ users }) {
             errors.name = "Name Should be more then 3 Char";
         if (!data.email) errors.email = "Please Enter Email";
         if (!data.phone_number) errors.phone_number = "Please Enter Phone Number";
-        if (!data.type || data.type == ' ') errors.type = "Please Select User Type";
+        if (!data.type) errors.type = "Please Select User Type";
         return errors
     };
 
@@ -42,8 +42,7 @@ function EditUser({ users }) {
     const handleUpdateUser = async (data, form) => {
         try {
             data.id = id;
-            let result = await axios.post(
-                `http://localhost:5000/api/users/edit`,
+            let result = await axios.post("/users/edit",
                 data
             );
 

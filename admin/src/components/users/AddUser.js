@@ -35,8 +35,7 @@ function AddUser() {
 
     const handleAddUser = async (data, form) => {
         try {
-            let result = await axios.post(
-                "http://localhost:5000/api/users/add",
+            let result = await axios.post("/users/add",
                 data
             );
             const fields = form.getRegisteredFields(); // Get all the registered field names

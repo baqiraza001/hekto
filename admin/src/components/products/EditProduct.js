@@ -41,12 +41,23 @@ function EditProduct({ products, categories, brands }) {
     const errors = {};
 
     if (!data.name)
-      errors.name = "Product Name is Required";
+      errors.name = "Product name is required";
     else if (data.name.length < 3)
-      errors.name = "Name Should be more then 3 Chararacters";
-    if (!data.price) errors.price = "Please Enter Price";
-    if (!data.categoryId) errors.categoryId = "Please Select Category";
+      errors.name = "Name should be more then 3 chararacters";
+    if (!data.price) errors.price = "Please enter price";
+    if (!data.categoryId) errors.categoryId = "Please select category";
     if (!data.shortDescription) errors.shortDescription = "Short description is required";
+
+    if (data.sale_price) {
+      if (parseFloat(data.price) < parseFloat(data.sale_price))
+        errors.sale_price = "Product price should be greated than sale price"
+    }
+
+    if (data.discountPercentage) {
+      if (data.discountPercentage < 0 || data.discountPercentage > 100)
+        errors.discountPercentage = "Discount percentage must between 0 and 100%"
+    }
+
     return errors
   };
 

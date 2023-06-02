@@ -1,18 +1,33 @@
+import { useEffect } from "react";
 import AppRoutes from "./AppRoutes";
 import Footer from "./components/common/footer/Footer";
 import Header from "./components/common/header/Header";
-import { useLocation } from "react-router-dom";
+import AppPreLoader from "./components/library/AppPreLoader";
+import { loadHomeData } from "./store/actions/homeActions";
+import { connect } from "react-redux";
 
-function App() {
-  const location = useLocation();
-  const endpoint = location.pathname;
-  const isAdminPanel = endpoint.startsWith("/admin");
+function App({ allRecordsLoaded, dispatch }) {
+
+  useEffect(() => {
+    dispatch(loadHomeData());
+  }, [])
+
+  if (!allRecordsLoaded)
+    return <AppPreLoader message="Loading..." />
+
   return (
-    <div className="">
-      { !isAdminPanel && <Header />}
+    <>
+      <Header />
       <AppRoutes />
-      { !isAdminPanel && <Footer />}
-    </div>
+      <Footer />
+    </>
   );
 }
-export default App;
+
+const mapStateToProps = ({ home }) => {
+  return {
+    allRecordsLoaded: home.allRecordsLoaded,
+  }
+}
+
+export default connect(mapStateToProps)(App);

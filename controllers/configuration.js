@@ -82,6 +82,7 @@ router.post("/add", async (req, res) => {
 // Editing Configuration
 router.post(
     "/update",
+    verifyUser,
     upload.single("logo"),
     async (req, res
     ) => {

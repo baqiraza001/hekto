@@ -20,7 +20,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { Grid, TextField } from '@mui/material';
 import { themeStyles } from '../../../styles';
 import { Link } from 'react-router-dom';
-
+import { useSelector } from "react-redux";
 
 const pages = [
   {
@@ -75,6 +75,8 @@ const pages = [
 
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
+  const configuration = useSelector(({ home: { configuration } }) => configuration);
+
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -104,7 +106,7 @@ function Navbar() {
                 textDecoration: 'none',
               }}
             >
-              <Link to="/"> <img src={logo} /></Link>
+              <Link to="/"> <img style={{ maxWidth: '100%', height: 'auto'}} src={process.env.REACT_APP_BASE_URL + `content/configuration/${configuration.logo}`} alt={configuration.siteName} /> : <img style={{ maxWidth: '100%', height: 'auto' }} src={process.env.REACT_APP_URL + `content/configuration/${configuration.logo}`} /></Link>
             </Typography>
           </Toolbar>
         </Grid>

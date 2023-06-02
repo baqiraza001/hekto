@@ -5,6 +5,7 @@ import { Box } from '@mui/system';
 import DoneIcon from '@mui/icons-material/Done';
 import { useState } from 'react';
 import { useTheme } from "@emotion/react";
+import { Link } from 'react-router-dom';
 
 function DiscountItem() {
 
@@ -86,7 +87,7 @@ function DiscountItem() {
 
                             </Grid>
                             <Grid container sx={{ justifyContent: { md: "start", xs: "center" } }}>
-                                <Button sx={{ ...themeStyles.discountBtn }}>Shop Now</Button>
+                                <Button sx={{ ...themeStyles.discountBtn }}><Link style={{ color: 'inherit', textDecoration: 'none'}} to="/products">Shop Now</Link></Button>
 
                             </Grid>
 

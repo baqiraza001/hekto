@@ -15,7 +15,7 @@ function LatestBlogs() {
     <Grid container mt={6} rowSpacing={5} columnSpacing={ !isMobile ? 3 : 0} sx={{...themeStyles.latestBlogsContainer}}>
         <Grid item md={12} xs={12} textAlign="center" mb={5}>
             <Typography sx={{...themeStyles.mainHeading}}>
-                Leatest Blog
+                Latest Blog
             </Typography>
         </Grid>
         <BlogCardVertical blogImage={blogImage1}/>

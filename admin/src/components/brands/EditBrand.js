@@ -9,7 +9,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useDispatch } from "react-redux";
 import { showError, showSuccess } from "../../store/actions/alertActions";
 import TextInput from '../library/form/TextInput';
-import { brandActionTypes } from '../../store/actions/brandsActions.js';
+import { brandActionTypes } from '../../store/actions/brandsActions';
 
 
 

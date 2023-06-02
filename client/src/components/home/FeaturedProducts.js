@@ -1,44 +1,44 @@
-import { Box, Grid, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { themeStyles } from "../../styles";
 import ProductCardVertical from "../common/ProductCardVertical";
 
-import featureImage1 from '../../static/images/products/featured1.png';
-import featureImage2 from '../../static/images/products/featured2.png';
-import featureImage3 from '../../static/images/products/featured3.png';
-import featureImage4 from '../../static/images/products/featured4.png';
 import Slider from "react-slick";
+import { useSelector } from "react-redux";
 
 function FeaturedProducts() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  const featuredProducts = useSelector(({ home: { data: { featuredProducts } } }) => featuredProducts);
+  
+
   let settings = {
-      dots: true,
-      infinite: true,
-      speed: 500,
-      autoplay:false,
-      slidesToShow: isMobile ? 1 : 4,
-      slidesToScroll: isMobile ? 1 : 4,
-      arrows: false
+    dots: true,
+    infinite: true,
+    speed: 500,
+    autoplay: false,
+    slidesToShow: isMobile ? 1 : 4,
+    slidesToScroll: isMobile ? 1 : 4,
+    arrows: false
   };
 
   return (
     <>
-      <Box mt={5} textAlign="center">
-        <Typography variant="h1" sx={{ ...themeStyles.mainHeading, fontSize: !isMobile ? '42px' : '32px' }}>Featured Products</Typography>
-      </Box>
-      <Slider key={isMobile ? "mobile" : "desktop"} {...settings}>
-          <ProductCardVertical productImage={featureImage1} isMobile={isMobile}/>
-          <ProductCardVertical productImage={featureImage2} isMobile={isMobile}/>
-          <ProductCardVertical productImage={featureImage3} isMobile={isMobile}/>
-          <ProductCardVertical productImage={featureImage4} isMobile={isMobile}/>
-          <ProductCardVertical productImage={featureImage1} isMobile={isMobile}/>
-          <ProductCardVertical productImage={featureImage2} isMobile={isMobile}/>
-          <ProductCardVertical productImage={featureImage3} isMobile={isMobile}/>
-          <ProductCardVertical productImage={featureImage4} isMobile={isMobile}/>
-      </Slider>
+      {
+        featuredProducts && featuredProducts.length > 0 && (
+          <>
+            <Box mt={5} textAlign="center">
+              <Typography variant="h1" sx={{ ...themeStyles.mainHeading, fontSize: !isMobile ? '42px' : '32px' }}>Featured Products</Typography>
+            </Box>
+            <Slider key={isMobile ? "mobile" : "desktop"} {...settings}>
+              {featuredProducts.map((product) => (
+                <ProductCardVertical viewDetailsLink={`/products/details/${product._id}`} key={product._id} productImage={product.productPictures && product.productPictures.length > 0 ? process.env.REACT_APP_BASE_URL + `content/products/${product._id}/${product.productPictures[0]}` : null } isMobile={isMobile} productTitle={product.name} productPrice={product.sale_price} />
+              ))}
+            </Slider>
+          </>
+        )
+      }
     </>
   );
 }
-
 export default FeaturedProducts;

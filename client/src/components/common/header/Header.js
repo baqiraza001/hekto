@@ -1,4 +1,4 @@
-import { Button, Box, Grid, IconButton, Typography } from "@mui/material";
+import { Button, Box, Grid, IconButton, Typography, LinearProgress } from "@mui/material";
 // import styles from "./header.module.css";
 
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
@@ -11,8 +11,10 @@ import MenuLink from "../menus/MenuLink";
 import { themeStyles } from "../../../styles";
 import { Link } from "react-router-dom";
 import Navbar from "./Navbar";
+import SnackBar from "../../library/SnackBar";
+import { connect } from "react-redux";
 
-function Header() {
+function Header({ progressBar, configuration }) {
 
     const data = [
         {
@@ -47,13 +49,13 @@ function Header() {
                             <Box >
                                 <Typography className="josefin" variant="body1">
                                     <MailOutlineIcon sx={{ "verticalAlign": 'middle', "marginRight": '10px' }} />
-                                    mhhasanul@gmail.com
+                                    {configuration.email}
                                 </Typography>
                             </Box>
                             <Box>
                                 <Typography variant="body1">
                                     <PhoneInTalkIcon sx={{ "verticalAlign": 'middle', "marginRight": '10px' }} />
-                                    (12345)67890
+                                    {configuration.phoneNumber}
                                 </Typography>
                             </Box>
                         </Grid>
@@ -70,7 +72,7 @@ function Header() {
                                         Login
                                     </Button>
                                 </Link>
-
+{/* 
                                 <Button
                                     id="fade-button"
                                     aria-haspopup="true"
@@ -78,7 +80,7 @@ function Header() {
                                     endIcon={<FavoriteBorderIcon style={{ ...themeStyles.btnMenuIcon }} />}
                                 >
                                     <Link to="/" style={{ ...themeStyles.btnMenu }}>Wishlist</Link>
-                                </Button>
+                                </Button> */}
 
                                 <IconButton aria-label="delete" sx={{ ...themeStyles.btnCartIcon, ...themeStyles.btnMenu }}>
                                     <Link to="/" style={{ ...themeStyles.btnMenu }}><AddShoppingCartIcon /></Link>
@@ -93,8 +95,20 @@ function Header() {
             {/* navigation bar: started */}
             <Navbar />
             {/* navigation bar: ended */}
+
+            <Box>
+                <SnackBar />
+                {progressBar.loading && <LinearProgress />}
+            </Box>
         </header>
     );
 }
 
-export default Header;
+const mapStateToProps = state => {
+    return {
+        progressBar: state.progressBar,
+        configuration: state.home.configuration
+    }
+}
+
+export default connect(mapStateToProps)(Header);

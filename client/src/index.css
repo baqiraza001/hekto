@@ -45,6 +45,11 @@
 body {
   font-family: var(--josefin);
   background-color: white;
+  height: 100%;
+}
+
+html {
+  height: 100%;
 }
 
 .active {
@@ -59,4 +64,11 @@ body {
   text-indent: -9999px;
   overflow:hidden;
   transform: rotate(45deg);
+}
+
+#root {
+  height: 100%;
+}
+.appPreLoader {
+  height: 100%;
 }

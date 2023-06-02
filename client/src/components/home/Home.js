@@ -12,6 +12,7 @@ import HomeBanner from "./HomeBanner";
 import LatestBlogs from "./LatestBlogs";
 
 function Home() {
+
     return (
         <>
             <InfoSlider />

@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import TextInput from "../library/form/TextInput";
 import { showError, showSuccess } from "../../store/actions/alertActions";
 import { useDispatch } from "react-redux";
-import { addBrand, brandActionTypes } from "../../store/actions/brandsActions.js";
+import { addBrand } from "../../store/actions/brandsActions";
 
 const AddBrand = () => {
   const dispatch = useDispatch()

@@ -5,10 +5,6 @@ import ProductsList from './components/products/ProductsList';
 import ShoppingCart from './components/products/ShoppingCart';
 import OrderCompleted from './components/products/OrderCompleted';
 import Checkout from './components/products/Checkout';
-import Login from './admin/components/Login';
-import Template from './admin/components/layout/Template';
-import AddUser from './admin/components/users/AddUser';
-import Users from './admin/components/users';
 
 function AppRoutes() {
 
@@ -22,7 +18,7 @@ function AppRoutes() {
             element: ProductsList,
         },
         {
-            path: '/products/details',
+            path: '/products/details/:productId',
             element: ProductDetails,
         },
         {
@@ -36,12 +32,6 @@ function AppRoutes() {
         {
             path: '/products/orders/checkout',
             element: Checkout,
-        },
-
-        //admin routes
-        {
-            path: '/admin/login',
-            element: Login,
         }
     ];
 
@@ -53,11 +43,7 @@ function AppRoutes() {
                 ))
 
             }
-            <Route path="/admin" element={<Template />}>
-                <Route path="users/add" element={<AddUser />} />
-                <Route path="users" element={<Users />} />
-            </Route>
-            {/* <Route path="*" element={<NoPage />} /> */}
+            
         </Routes>
     );
 

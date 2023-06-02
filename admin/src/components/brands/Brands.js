@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'date-fns';
 import DeletePopUp from '../library/DeletePopup';
-import { brandActionTypes, deleteBrand, loadBrands } from '../../store/actions/brandsActions.js';
+import { brandActionTypes, deleteBrand, loadBrands } from '../../store/actions/brandsActions';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import AddIcon from '@mui/icons-material/Add';
 

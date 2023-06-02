@@ -1,6 +1,7 @@
 import { Box, Button, Grid, Typography } from '@mui/material';
 import { themeStyles } from '../../styles';
 import getUpdateImage from '../../static/images/updates/update1.png';
+import { Link } from 'react-router-dom';
 
 const GetUpdates = () => {
     return (
@@ -11,7 +12,7 @@ const GetUpdates = () => {
                     <Typography sx={{ ...themeStyles.updatesHeading }}>Get Latest Update By Subscribe Our Newsletter</Typography>
                 </Box>
                 <Box textAlign={'center'} >
-                    <Button sx={{ ...themeStyles.discountBtn }}>Shop Now</Button>
+                    <Button sx={{ ...themeStyles.discountBtn }}><Link to="/products" style={{ color: 'inherit', textDecoration: 'none'}}>Shop Now</Link></Button>
                 </Box>
             </Box>
         </Grid>

@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const Product = require("../models/Product")
-const { isSuperAdmin, isAdmin } = require("../utils/util");
+const { isSuperAdmin, isAdmin, dump } = require("../utils/util");
 const { verifyUser } = require("../milddlewares/auth");
 const multer = require('multer');
 const fs = require('fs').promises;
@@ -10,7 +10,7 @@ const path = require('path');
 const Category = require("../models/Category");
 
 const router = express.Router();
-router.use(verifyUser)
+router.use(['/add', '/edit', '/delete'], verifyUser)
 
 const storage = multer.diskStorage({
     destination: async (req, file, cb) => {
@@ -207,7 +207,7 @@ router.delete('/delete', async (req, res) => {
 
 
 //Getting Products
-router.get("/", async (req, res) => {
+router.get("/", verifyUser, async (req, res) => {
     try {
         if (isSuperAdmin(req.user) && isAdmin(req.user))
             throw new Error("Invalid Request")
@@ -267,5 +267,206 @@ router.get("/", async (req, res) => {
     }
 });
 
+
+// Client Home Page Products
+router.get("/home", async (req, res) => {
+    try {
+
+        const limit = req.query.limit ? req.query.limit : 4;
+
+        const pipeline = [
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "categoryId",
+                    foreignField: "_id",
+                    as: "category"
+                }
+            },
+            {
+                $unwind: "$category"
+            },
+            {
+                $match: {
+                    active: parseInt(process.env.ACTIVE_STATUS)
+                }
+            },
+            {
+                $sort: {
+                    created_on: -1
+                }
+            },
+            {
+                $facet: {
+                    featuredProducts: [
+                        {
+                            $match: {
+                                isFeatured: true
+                            }
+                        },
+                        {
+                            $limit: limit
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                name: 1,
+                                sale_price: 1,
+                                discountPrice: 1,
+                                discountPercentage: 1,
+                                averageRating: 1,
+                                categoryId: 1,
+                                active: 1,
+                                created_on: 1,
+                                shortDescription: 1,
+                                longDescription: 1,
+                                additionalInformation: 1,
+                                tags: 1,
+                                isFeatured: 1,
+                                isTop: 1,
+                                isTrending: 1,
+                                productPictures: 1,
+                                categoryName: "$category.name"
+                            }
+                        }
+                    ],
+                    trendingProducts: [
+                        {
+                            $match: {
+                                isTrending: true
+                            }
+                        },
+                        {
+                            $limit: limit
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                name: 1,
+                                sale_price: 1,
+                                discountPrice: 1,
+                                discountPercentage: 1,
+                                averageRating: 1,
+                                categoryId: 1,
+                                active: 1,
+                                created_on: 1,
+                                shortDescription: 1,
+                                longDescription: 1,
+                                additionalInformation: 1,
+                                tags: 1,
+                                isFeatured: 1,
+                                isTop: 1,
+                                isTrending: 1,
+                                productPictures: 1,
+                                categoryName: "$category.name"
+                            }
+                        }
+                    ],
+                    topProducts: [
+                        {
+                            $match: {
+                                isTop: true
+                            }
+                        },
+                        {
+                            $limit: limit
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                name: 1,
+                                sale_price: 1,
+                                discountPrice: 1,
+                                discountPercentage: 1,
+                                averageRating: 1,
+                                categoryId: 1,
+                                active: 1,
+                                created_on: 1,
+                                shortDescription: 1,
+                                longDescription: 1,
+                                additionalInformation: 1,
+                                tags: 1,
+                                isFeatured: 1,
+                                isTop: 1,
+                                isTrending: 1,
+                                productPictures: 1,
+                                categoryName: "$category.name"
+                            }
+                        }
+                    ],
+                    latestProducts: [
+                        {
+                            $limit: limit * limit
+                        },
+
+                        {
+                            $group: {
+                                _id: "$category.name",
+                                products: {
+                                    $push: {
+                                        _id: "$_id",
+                                        name: "$name",
+                                        sale_price: "$sale_price",
+                                        discountPrice: "$discountPrice",
+                                        discountPercentage: "$discountPercentage",
+                                        averageRating: "$averageRating",
+                                        categoryId: "$categoryId",
+                                        active: "$active",
+                                        created_on: "$created_on",
+                                        shortDescription: "$shortDescription",
+                                        longDescription: "$longDescription",
+                                        additionalInformation: "$additionalInformation",
+                                        tags: "$tags",
+                                        isFeatured: "$isFeatured",
+                                        isTop: "$isTop",
+                                        isTrending: "$isTrending",
+                                        productPictures: "$productPictures",
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+                                category: "$_id",
+                                products: {
+                                    $slice: ["$products", 3]
+                                }
+                            }
+                        },
+                        {
+                            $limit: 3
+                        },
+                        {
+                            $group: {
+                                _id: null,
+                                latestProducts: {
+                                    $push: {
+                                        k: "$category",
+                                        v: "$products"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+                                latestProducts: {
+                                    $arrayToObject: "$latestProducts"
+                                }
+                            }
+                        },
+                    ]
+                }
+            }];
+
+        const products = await Product.aggregate(pipeline);
+
+
+        res.status(200).json(dump(products[0], res));
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
 
 module.exports = router;

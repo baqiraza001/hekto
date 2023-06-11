@@ -22,39 +22,56 @@ import TwitterIcon from "@mui/icons-material/Twitter";
 import ProductsDetailTabs from "./ProductsDetailTabs";
 import RelatedProducts from "./RelatedProducts";
 import BreadCrumbs from "../common/products/BreadCrumbs"
+import { useParams } from "react-router";
+import { useSearchParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 export default function ProductDetails() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  const { productId } = useParams();
+  let [searchParams] = useSearchParams();
+  const { isFeatured, isLatest, isTrending, isTop, category } = Object.fromEntries([...searchParams]);
+
+
+  const product = useSelector(state => {
+    if (isFeatured) {
+      return state.home.data.featuredProducts.find(product => product._id === productId)
+    }
+
+    if (isLatest) {
+      const latestProducts = state.home.data.latestProducts[0].latestProducts;
+      return latestProducts[category].find(product => product._id === productId)
+    }
+
+    if (isTrending) {
+      return state.home.data.trendingProducts.find(product => product._id === productId)
+    }
+
+    if (isTop) {
+      return state.home.data.topProducts.find(product => product._id === productId)
+    }
+
+  });
+
+
   const breadCrumbs = [
-    { to: '/', label: 'Home' },
-    { to: '/products', label: 'Products' },
+    { path: '/', label: 'Home' },
+    { path: '/products', label: 'Products' },
   ]
 
-  const images = [
-    { title: "image 1", url: thumb1 },
-    { title: "image 2", url: thumb2 },
-    { title: "image 3", url: thumb3 },
-    { title: "image 3", url: thumb3 },
-    { title: "image 3", url: thumb3 },
-    { title: "image 3", url: thumb3 },
-    { title: "image 3", url: thumb3 },
-    { title: "image 3", url: thumb3 },
-    { title: "image 3", url: thumb3 },
-    { title: "image 3", url: thumb3 },
-  ];
+  const images = product.productPictures;
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const handleClickThumbnail = (index) => {
     setCurrentImageIndex(index);
   };
-
   return (
     <>
       <Container maxWidth={'xl'} disableGutters sx={{ 'background': 'var(--bread-crumbs)' }}  >
-        <BreadCrumbs breadCrumbs={breadCrumbs} active={"Shipping"} />
+        <BreadCrumbs title={product.name} breadCrumbs={breadCrumbs} active={"Details"} />
       </Container>
       <Container
         maxWidth="md"
@@ -88,8 +105,9 @@ export default function ProductDetails() {
                 >
                   {images.map((image, index) => (
                     <img
-                      src={image.url}
-                      alt={image.title}
+                      key={index}
+                      src={process.env.REACT_APP_BASE_URL + `content/products/${product._id}/${image}`}
+                      alt={process.env.REACT_APP_BASE_URL + `content/products/${product._id}/${image}`}
                       style={{ maxWidth: "100%", height: "auto" }}
                       onClick={() => handleClickThumbnail(index)}
                     />
@@ -98,8 +116,8 @@ export default function ProductDetails() {
               </Grid>
               <Grid item md={10} my={3}>
                 <img
-                  src={images[currentImageIndex].url}
-                  alt={images[currentImageIndex].title}
+                  src={process.env.REACT_APP_BASE_URL + `content/products/${product._id}/${images[currentImageIndex]}`}
+                  alt={process.env.REACT_APP_BASE_URL + `content/products/${product._id}/${images[currentImageIndex]}`}
                   style={{ maxWidth: "100%", height: "auto" }}
                 />
               </Grid>
@@ -114,7 +132,7 @@ export default function ProductDetails() {
               flexDirection="column"
             >
               <Typography mb={3} sx={{ ...themeStyles.mainHeading }}>
-                Playwood arm chair
+                {product.name}
               </Typography>
               <Box mb={3}>
                 <Rating
@@ -131,10 +149,10 @@ export default function ProductDetails() {
               </Box>
               <Box display={"flex"} mr={"10px"}>
                 <Typography sx={{ ...themeStyles.productDetailsPrice }}>
-                  $26.00
+                  {product.sale_price}
                 </Typography>
                 <Typography sx={{ ...themeStyles.productDetailsDiscountedPrice }}>
-                  $56.00
+                  {product.discountPrice}
                 </Typography>
               </Box>
               <Typography
@@ -147,12 +165,9 @@ export default function ProductDetails() {
                   fontWeight: "600",
                 }}
               >
-                Color
+                Color: <Button variant="contained" sx={{ backgroundColor: product.color, color: product.color, minWidth: '20px', height: '30px', borderRadius: 0 }}></Button>
               </Typography>
-              <Typography sx={{ ...themeStyles.productDetailsDescription }}>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Magna in
-                est adipiscing in phasellus non in justo.
-              </Typography>
+              <Typography sx={{ ...themeStyles.productDetailsDescription }}>{product.shortDescription}</Typography>
               <Box
                 display="flex"
                 alignItems="center"
@@ -165,15 +180,20 @@ export default function ProductDetails() {
                 >
                   Add To Cart
                 </Button>
-                <FavoriteBorderIcon sx={{ color: "#535399" }} />
               </Box>
-              <Typography mb={3} sx={{ ...themeStyles.productDetailsSubTitle }}>
-                Categories
-              </Typography>
-              <Typography mb={3} sx={{ ...themeStyles.productDetailsSubTitle }}>
-                Tags
-              </Typography>
-              <Box display="flex" alignItems="center">
+              <Box mb={3}>
+                <Typography variant="span" mb={3} sx={{ ...themeStyles.productDetailsSubTitle }}>
+                  Category:
+                </Typography>
+                <Typography variant="span" ml={3}>{product.categoryName}</Typography>
+              </Box>
+              <Box mb={3}>
+                <Typography variant="span" mb={3} sx={{ ...themeStyles.productDetailsSubTitle }}>
+                  Tags
+                </Typography>
+                <Typography variant="span" ml={3}>{product.tags}</Typography>
+              </Box>
+              <Box display="flex" alignItems="center" mb={3}>
                 <Typography sx={{ ...themeStyles.productDetailsSubTitle }}>
                   Share
                 </Typography>
@@ -198,7 +218,7 @@ export default function ProductDetails() {
           ...themeStyles.productDescriptionContainer,
         }}
       >
-        <ProductsDetailTabs />
+        <ProductsDetailTabs product={product} />
       </Box>
 
       <Box

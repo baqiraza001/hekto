@@ -32,7 +32,7 @@ function FeaturedProducts() {
             </Box>
             <Slider key={isMobile ? "mobile" : "desktop"} {...settings}>
               {featuredProducts.map((product) => (
-                <ProductCardVertical viewDetailsLink={`/products/details/${product._id}`} key={product._id} productImage={product.productPictures && product.productPictures.length > 0 ? process.env.REACT_APP_BASE_URL + `content/products/${product._id}/${product.productPictures[0]}` : null } isMobile={isMobile} productTitle={product.name} productPrice={product.sale_price} />
+                <ProductCardVertical viewDetailsLink={`/products/details/${product._id}/?isFeatured=1`} key={product._id} productImage={product.productPictures && product.productPictures.length > 0 ? process.env.REACT_APP_BASE_URL + `content/products/${product._id}/${product.productPictures[0]}` : null } isMobile={isMobile} productTitle={product.name} productPrice={product.sale_price} />
               ))}
             </Slider>
           </>

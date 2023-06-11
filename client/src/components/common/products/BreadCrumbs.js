@@ -2,13 +2,13 @@ import { Box, Button, Container, Typography } from "@mui/material";
 import { themeStyles } from "../../../styles";
 import { Link } from "react-router-dom";
 
-const BreadCrumbs = ({ breadCrumbs, active = 'Active Text Here' }) => {
+const BreadCrumbs = ({ breadCrumbs, active = 'Active Text Here', title="" }) => {
   return (
     <Container maxWidth={"md"}>
       <Box sx={{ ...themeStyles.breadcrumbsBox }}>
         <Box>
           <Typography sx={{ ...themeStyles.breaCrumbsHeading }}>
-            Shop Grid Default
+            {title}
           </Typography>
         </Box>
         <Box>
